@@ -1,0 +1,29 @@
+{
+  "name": "flappy-ascend",
+  "version": "1.0.0",
+  "description": "Some multiplayer socket game for a future AscendNTNU stand.",
+  "main": "index.js",
+  "scripts": {
+    "start": "python3 -mhttp.server 3333",
+    "dev": "webpack-dev-server --hot --inline --quiet --no-info"
+  },
+  "author": "Ascend NTNU",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AscendNTNU/flappy-ascend.git"
+  },
+  "dependencies": {
+    "express": "^4.15.4",
+    "ws": "^3.1.0",
+    "bufferutil": "^3.0.2",
+    "utf-8-validate": "^3.0.3",
+    "dotenv": "^4.0.0"
+  },
+  "devDependencies": {
+    "raw-loader": "^0.5.1",
+    "source-map-loader": "^0.2.1",
+    "webpack": "^3.5.4",
+    "webpack-dev-server": "^2.7.1"
+  }
+}
