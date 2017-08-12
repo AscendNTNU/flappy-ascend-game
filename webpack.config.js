@@ -1,11 +1,14 @@
 var path = require("path")
 
 module.exports = {
-    entry: './src/index.js',
+    entry: {
+        host: './src/host.js',
+        client: './src/client.js'
+    },
     output: {
-        path: path.resolve(__dirname, 'public'),
+        path: path.resolve(__dirname, 'public/dist'),
         publicPath: '/dist/',
-        filename: 'bundle.js'
+        filename: '[name].bundle.js'
     },
     devtool: 'source-map',
     devServer: {
@@ -14,7 +17,7 @@ module.exports = {
         // stats: 'errors-only',
         contentBase: './public',
         publicPath: '/dist/',
-        filename: 'bundle.js'
+        filename: '[name].bundle.js'
     },
     module: {
         rules: [
