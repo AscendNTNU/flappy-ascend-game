@@ -13,3 +13,15 @@ Go to /view/{pin} to watch the main event.
 
 Go to /play/{pin} to play on specified pin.
 - You will not receive other players data as it causes a lot of traffic and delays.
+
+## Setup
+
+Requires Node.js and Redis. Node also requires `webpack` to build, and if you want a smooth development experience, use `webpack-dev-server` too (which allow inline hot reloading, meaning instant refresh in browser). These can be installed by npm (Node Package Manager):
+
+```bash
+$ npm install -g webpack webpack-dev-server
+```
+
+Before application starts, run the redis server on port 6379 (default). Mostly, redis can be ran with `redis-server` in the terminal, if it is installed.
+
+Then run `node server.js`. If you are developing, we recommend using `webpack -w` to build the client code on save.
