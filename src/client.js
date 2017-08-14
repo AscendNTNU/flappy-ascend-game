@@ -9,9 +9,10 @@ let ws = new WebSocket(`ws://${host}:${process.env.PORT}/${pin}/${userId}`)
 ws.addEventListener('message', (evt) => {
   let data = JSON.parse(evt.data)
 
-  ws.send(JSON.stringify({
-    msg: 'smuud! I am ' + userId,
-  }))
+  console.log(data)
+  // ws.send(JSON.stringify({
+  //   msg: 'smuud! I am ' + userId,
+  // }))
 })
 
 let canvas = document.getElementById('canvas')
