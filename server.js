@@ -1,3 +1,8 @@
+let state = {
+  users: {},
+  userCount: 0
+}
+
 // Creating an express app making it easier to route
 var express = require('express')
 var app = express()
@@ -83,5 +88,7 @@ function getParams (url) {
 }
 
 setInterval(() => {
-  // Some function adding more obstacles.
+  if (state.userCount) {
+    // Some function adding more obstacles.
+  }
 }, process.env.INTERVAL || 10000)
