@@ -17,12 +17,15 @@ ws.addEventListener('message', (evt) => {
       ws.send(JSON.stringify({ type: 'email', email }))
       break
     case 'track':
-      console.log(data.track);
-      state.track = data.track.map((e, i) => e.split(':'))
+      console.log(data.track)
+      setState({
+        track: data.track.map((e, i) => e.split(':'))
+      })
       break
-    case 'update':
-      console.log(data.track);
+      case 'update':
+      console.log(data.track)
       state.track.push(data.track)
+      setState()
       break
   }
 })
@@ -86,6 +89,11 @@ function update (progress) {
 
 function stop () {
   window.cancelAnimationFrame(loop)
+}
+
+function setState (data) {
+  // Update drawings and other stuff...
+  Object.assign({}, state, data)
 }
 
 init()
