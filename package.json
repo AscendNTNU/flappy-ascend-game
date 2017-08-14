@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "python3 -mhttp.server 3333",
-    "dev": "webpack-dev-server --hot --inline --quiet --no-info"
+    "dev": "webpack-dev-server --hot --inline --quiet --no-info",
+    "server": "node server.js",
+    "watch": "webpack -w"
   },
   "author": "Ascend NTNU",
   "license": "MIT",
