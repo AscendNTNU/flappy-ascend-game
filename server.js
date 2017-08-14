@@ -1,5 +1,6 @@
 let state = {
   users: {},
+  userWS: {},
   userCount: 0
 }
 
@@ -53,13 +54,34 @@ var WebSocket = require('ws')
 var wss = new WebSocket.Server({ server: server })
 wss.on('connection', function (ws, req) {
 
-  // Registering the user to pin in redis
+  // Registering the user to pin in redis and adding user to global state
   var params = getParams(req.url)
   console.log(params.userId + ' connected to pin ' + params.pin)
+  state.users[params.userId] = {
+    score: 0,
+    email: ''
+  }
+  state.userWS[params.userId] = ws
+  state.userCount++
+  rc.hgetall(userHash(params.pin, params.userId), function (err, reply) {
+    if (err) console.log(err)
+    let userExist = !!reply
+    if (!userExist) state.users[params.userId].timeCreated = Date.now()
+    Object.assign(state.users[params.userId], reply, {
+      timeModified: Date.now()
+    })
+    rc.hmset(userHash(params.pin, params.userId), state.users[params.userId], function (err, reply) {
+      ws.send(JSON.stringify({
+        type: 'exist',
+        exists: userExist
+      }))
+    })
+  })
 
   // Send back all initial setup
   rc.lrange('track', 0, -1, function (err, reply) {
     ws.send(JSON.stringify({
+      type: 'track',
       track: reply
     }))
   })
@@ -68,16 +90,19 @@ wss.on('connection', function (ws, req) {
     data = JSON.parse(data)
   })
 
-  // Removing user from game, but may his spirit live forever in redis
+  // Removing user from game, but may his spirit live forever in Redis
   ws.on('close', function () {
     console.log(params.userId + ' quit the game on pin ' + params.pin)
+    delete state.users[params.userId]
+    delete state.userWS[params.userId]
+    state.userCount--
   })
 })
 
 /**
- * Parsing the url, such that we keep the same format everywhere
+ * Parsing the url, such that we keep the same format everywhere.
  * 
- * @param {string} url 
+ * @param {string} url Url from web socket, making user identifyable.
  */
 function getParams (url) {
   let parsed = url.slice(1).split(/\//)
@@ -87,8 +112,19 @@ function getParams (url) {
   }
 }
 
+/**
+ * Hash format for saving users as Redis does not support recursive saving.
+ * 
+ * @param {string} pin The game pin.
+ * @param {string} user The user identification.
+ */
+function userHash (pin, userId) {
+  return 'pin:' + pin + ':user:' + userId
+}
+
 setInterval(() => {
   if (state.userCount) {
+
     // Some function adding more obstacles.
   }
 }, process.env.INTERVAL || 10000)
