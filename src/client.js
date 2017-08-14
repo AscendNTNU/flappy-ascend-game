@@ -1,10 +1,18 @@
 import Player from './components/Player'
 
+const pin = '123'
+const userId = prompt('username')
+// const email = prompt('Email')
+
 let host = window.document.location.host.replace(/:.*/, '')
-let ws = new WebSocket(`ws://${host}:${process.env.PORT}`)
-ws.onmessage = function (event) {
-  console.log(JSON.parse(event.data))
-}
+let ws = new WebSocket(`ws://${host}:${process.env.PORT}/${pin}/${userId}`)
+ws.addEventListener('message', (evt) => {
+  let data = JSON.parse(evt.data)
+
+  ws.send(JSON.stringify({
+    msg: 'smuud! I am ' + userId,
+  }))
+})
 
 let canvas = document.getElementById('canvas')
 let cw = canvas.width

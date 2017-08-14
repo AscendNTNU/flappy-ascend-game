@@ -25,18 +25,33 @@ server.listen(process.env.PORT || 8080, function () {
 
 var WebSocket = require('ws')
 var wss = new WebSocket.Server({ server: server })
-wss.on('connection', function (ws) {
-  var id = setInterval(function () {
-    ws.send(JSON.stringify(process.memoryUsage()), function () { /* ignore errors */ })
-  }, 1000)
+wss.on('connection', function (ws, req) {
 
-  console.log('Started client interval')
+  // Registering the user to pin in redis
+  var params = getParams(req.url)
+  console.log(params.userId + ' connected to pin ' + params.pin)
 
+  // Send back all initial setup
+  ws.send(JSON.stringify('Sending initial setup'))
+
+  ws.on('message', function (data) {
+    data = JSON.parse(data)
+    // console.log('Got msg: ' + data.msg)
+  })
+
+  // Removing user from game, but may his spirit live forever in redis
   ws.on('close', function () {
-    console.log('Stopping client interval')
-    clearInterval(id)
+    console.log(params.userId + ' quit the game on pin ' + params.pin)
   })
 })
+
+function getParams (url) {
+  let parsed = url.slice(1).split(/\//)
+  return {
+    pin: parsed[0],
+    userId: parsed[1],
+  }
+}
 
 setInterval(() => {
   // Some function adding more obstacles.
