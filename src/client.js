@@ -36,11 +36,18 @@ function loop (currentTime) {
 function init () {
   state = {
     player: new Player(100, ch / 2),
-    time: 0
+    time: 0,
+    touch: false,
   }
 
-  canvas.addEventListener('click', (evt) => {
+  canvas.addEventListener('touchstart', (evt) => {
     state.player.jump()
+    state.touch = true
+  })
+
+  canvas.addEventListener('mousedown', (evt) => {
+    if (!state.touch) state.player.jump()
+    state.touch = false
   })
 
   window.requestAnimationFrame(loop)
