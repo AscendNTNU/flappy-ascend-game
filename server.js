@@ -124,7 +124,13 @@ function userHash (pin, userId) {
 
 setInterval(() => {
   if (state.userCount) {
-
-    // Some function adding more obstacles.
+    // Some function adding more obstacles and returning them to active users
+    var data = JSON.stringify({
+      type: 'update',
+      track: [Math.round(Math.random() * 100)]
+    })
+    for (var userId in state.userWS) {
+      state.userWS[userId].send(data)
+    }
   }
 }, process.env.INTERVAL || 10000)
