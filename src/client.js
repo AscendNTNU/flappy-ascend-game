@@ -1,5 +1,11 @@
 import Player from './components/Player'
 
+let host = window.document.location.host.replace(/:.*/, '')
+let ws = new WebSocket(`ws://${host}:${process.env.PORT}`)
+ws.onmessage = function (event) {
+    console.log(JSON.parse(event.data))
+}
+
 let canvas = document.getElementById('canvas')
 let cw = canvas.width
 let ch = canvas.height
