@@ -2,17 +2,29 @@ import Player from './components/Player'
 
 const pin = '123'
 const userId = prompt('username')
-// const email = prompt('Email')
+let email = ''
+let state = null
 
 let host = window.document.location.host.replace(/:.*/, '')
 let ws = new WebSocket(`ws://${host}:${process.env.PORT}/${pin}/${userId}`)
 ws.addEventListener('message', (evt) => {
   let data = JSON.parse(evt.data)
 
-  console.log(data)
-  // ws.send(JSON.stringify({
-  //   msg: 'smuud! I am ' + userId,
-  // }))
+  switch (data.type) {
+    case 'exists':
+      if (!data.exists)
+        email = prompt('Fyll inn din mail eller ditt mobilnummer så vi kan kontakte deg:')
+      ws.send(JSON.stringify({ type: 'email', email }))
+      break
+    case 'track':
+      console.log(data.track);
+      state.track = data.track.map((e, i) => e.split(':'))
+      break
+    case 'update':
+      console.log(data.track);
+      state.track.push(data.track)
+      break
+  }
 })
 
 let canvas = document.getElementById('canvas')
@@ -20,8 +32,6 @@ let cw = canvas.width
 let ch = canvas.height
 
 let ctx = canvas.getContext('2d')
-
-let state = null
 
 let startTime = 0
 function loop (currentTime) {

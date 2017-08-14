@@ -1,7 +1,8 @@
 let state = {
   users: {},
   userWS: {},
-  userCount: 0
+  userCount: 0,
+  track: []
 }
 
 // Creating an express app making it easier to route
@@ -33,6 +34,8 @@ rc.on('connect', function () {
     for (var i = 0; i < 10; i++) {
       track.push(Math.round(Math.random() * 100))
     }
+
+    state.track = track
 
     rc.rpush(track, function (err, reply) {
       if (err) console.log(err)
@@ -73,21 +76,33 @@ wss.on('connection', function (ws, req) {
     rc.hmset(userHash(params.pin, params.userId), state.users[params.userId], function (err, reply) {
       ws.send(JSON.stringify({
         type: 'exist',
-        exists: userExist
+        exists: userExist,
+        email: reply.email || ''
       }))
     })
   })
 
   // Send back all initial setup
-  rc.lrange('track', 0, -1, function (err, reply) {
+  rc.lrange('track', -11, -1, function (err, reply) {
+    let count = state.track.length
     ws.send(JSON.stringify({
       type: 'track',
-      track: reply
+      track: reply.map((e, i) => e + ':' + (i + count))
     }))
   })
 
   ws.on('message', function (data) {
     data = JSON.parse(data)
+    if (data.hasOwnProperty('type')) {
+      switch (data.type) {
+        case 'init': console.log(data.message); break
+        case 'email':
+          setUserProp(rc, params.pin, params.userId, {
+            email: data.email
+          })
+          break
+      }
+    }
   })
 
   // Removing user from game, but may his spirit live forever in Redis
@@ -122,15 +137,37 @@ function userHash (pin, userId) {
   return 'pin:' + pin + ':user:' + userId
 }
 
+/**
+ * Creating an easy-to-use function for further changes to the user.
+ * 
+ * @param {*} redisContext 
+ * @param {*} pin 
+ * @param {*} userId 
+ * @param {*} data 
+ */
+function setUserProp (redisContext, pin, userId, data, callback = () => {}) {
+  redisContext.hgetall(userHash(pin, userId), function (err, reply) {
+    if (err) console.log(err)
+    let userExist = !!reply
+    if (!userExist) state.users[userId].timeCreated = Date.now()
+    Object.assign(state.users[userId], reply, { timeModified: Date.now() }, data)
+    rc.hmset(userHash(pin, userId), state.users[userId], callback)
+  })
+}
+
 setInterval(() => {
+  let piece = [Math.round(Math.random() * 100), state.track.length]
+  state.track.push(piece)
+  rc.rpush('track', piece[0])
+
   if (state.userCount) {
     // Some function adding more obstacles and returning them to active users
     var data = JSON.stringify({
       type: 'update',
-      track: [Math.round(Math.random() * 100)]
+      track: piece
     })
     for (var userId in state.userWS) {
       state.userWS[userId].send(data)
     }
   }
-}, process.env.INTERVAL || 10000)
+}, process.env.INTERVAL || 1500)
