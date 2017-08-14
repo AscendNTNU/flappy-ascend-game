@@ -8,12 +8,12 @@ dotenv.config()
 
 var redis = require('redis')
 var client = redis.createClient(
-    process.env.REDIS_PORT || 6379,
-    process.env.REDIS_HOST || '127.0.0.1'
+  process.env.REDIS_PORT || 6379,
+  process.env.REDIS_HOST || '127.0.0.1'
 )
 
 client.on('connect', function () {
-    console.log('Redis connected')
+  console.log('Redis connected')
 })
 
 var http = require('http')
@@ -39,5 +39,5 @@ wss.on('connection', function (ws) {
 })
 
 setInterval(() => {
-    // Some function adding more obstacles.
+  // Some function adding more obstacles.
 }, process.env.INTERVAL || 10000)
