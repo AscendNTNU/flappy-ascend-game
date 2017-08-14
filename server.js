@@ -1,11 +1,14 @@
+// Creating an express app making it easier to route
 var express = require('express')
 var app = express()
 var path = require('path')
 app.use(express.static(path.join(__dirname, '/public')));
 
+// Env vars from .env file loaded into process.env
 var dotenv = require('dotenv')
 dotenv.config()
 
+// Connect to the redis server which should be up and running
 var redis = require('redis')
 var rc = redis.createClient(
   process.env.REDIS_PORT || 6379,
@@ -32,13 +35,15 @@ rc.on('connect', function () {
   })
 })
 
+// Creating the actual server listening to the .env PORT or 8080 (default)
 var http = require('http')
 var server = http.createServer()
-server.on('request', app);
+server.on('request', app)
 server.listen(process.env.PORT || 8080, function () {
   console.log('Express server listening on http://localhost:' + this.address().port)
 })
 
+// Creating the web socket server and handling all the requests from client
 var WebSocket = require('ws')
 var wss = new WebSocket.Server({ server: server })
 wss.on('connection', function (ws, req) {
@@ -64,6 +69,11 @@ wss.on('connection', function (ws, req) {
   })
 })
 
+/**
+ * Parsing the url, such that we keep the same format everywhere
+ * 
+ * @param {string} url 
+ */
 function getParams (url) {
   let parsed = url.slice(1).split(/\//)
   return {
