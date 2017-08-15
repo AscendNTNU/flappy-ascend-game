@@ -17,13 +17,11 @@ ws.addEventListener('message', (evt) => {
       ws.send(JSON.stringify({ type: 'email', email }))
       break
     case 'track':
-      console.log(data.track)
       setState({
-        track: data.track.map((e, i) => e.split(':'))
+        track: data.track.map(e => e.split(':').map(f => parseInt(f)))
       })
       break
       case 'update':
-      console.log(data.track)
       state.track.push(data.track)
       setState()
       break
@@ -51,6 +49,7 @@ function init () {
     player: new Player(100, ch / 2),
     time: 0,
     touch: false,
+    track: [],
   }
 
   canvas.addEventListener('touchstart', (evt) => {
@@ -85,6 +84,24 @@ function update (progress) {
   ctx.lineTo(playerPos.x + 10, playerPos.y)
   ctx.lineTo(playerPos.x, playerPos.y + 10)
   ctx.fill()
+
+  if (state.track.length) {
+    ctx.fillStyle = '#red'
+    let w = 10
+    let d = 20
+    let h = 90
+    let offset = state.track[state.track.length - 1][1] - 10
+    ctx.beginPath()
+    for (let piece of state.track) {
+      let x = (piece[1] - offset) * d + cw
+      let y = piece[0]
+      ctx.moveTo(x, y)
+      ctx.lineTo(x + w, y)
+      ctx.lineTo(x + w, y + h)
+      ctx.lineTo(x, y + h)
+    }
+    ctx.fill()
+  }
 }
 
 function stop () {
@@ -93,7 +110,7 @@ function stop () {
 
 function setState (data) {
   // Update drawings and other stuff...
-  Object.assign({}, state, data)
+  state = Object.assign({}, state, data)
 }
 
 init()

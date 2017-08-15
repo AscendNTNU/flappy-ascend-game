@@ -84,7 +84,7 @@ wss.on('connection', function (ws, req) {
 
   // Send back all initial setup
   rc.lrange('track', -11, -1, function (err, reply) {
-    let count = state.track.length
+    let count = state.track.length - 11
     ws.send(JSON.stringify({
       type: 'track',
       track: reply.map((e, i) => e + ':' + (i + count))
