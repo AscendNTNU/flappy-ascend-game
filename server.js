@@ -140,10 +140,10 @@ function userHash (pin, userId) {
 /**
  * Creating an easy-to-use function for further changes to the user.
  * 
- * @param {*} redisContext 
- * @param {*} pin 
- * @param {*} userId 
- * @param {*} data 
+ * @param {*} redisContext Redis connection object.
+ * @param {*} pin The game pin.
+ * @param {*} userId The user identification.
+ * @param {*} data Some data to add/update object with.
  */
 function setUserProp (redisContext, pin, userId, data, callback = () => {}) {
   redisContext.hgetall(userHash(pin, userId), function (err, reply) {
