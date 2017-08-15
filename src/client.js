@@ -90,7 +90,7 @@ function update (progress) {
     let w = 10
     let d = 20
     let h = 90
-    let offset = state.track[state.track.length - 1][1] - 10
+    let offset = state.track[state.track.length - 1][1]
     ctx.beginPath()
     for (let piece of state.track) {
       let x = (piece[1] - offset) * d + cw
