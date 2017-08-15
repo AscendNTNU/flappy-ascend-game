@@ -92,8 +92,9 @@ function update (progress) {
     let h = 90
     let offset = state.track[state.track.length - 1][1]
     ctx.beginPath()
-    for (let piece of state.track) {
+    for (let piece of state.track.slice(-cw / d)) {
       let x = (piece[1] - offset) * d + cw
+      // if (x < 100) break
       let y = piece[0]
       ctx.moveTo(x, y)
       ctx.lineTo(x + w, y)
