@@ -4,6 +4,7 @@ const pin = '123'
 const userId = prompt('username')
 let email = ''
 let state = null
+let progress
 
 let host = window.document.location.host.replace(/:.*/, '')
 let ws = new WebSocket(`ws://${host}:${process.env.PORT}/${pin}/${userId}`)
@@ -24,6 +25,7 @@ ws.addEventListener('message', (evt) => {
       case 'update':
       state.track.push(data.track)
       setState()
+      state.timeOffset = Math.round(progress / process.env.INTERVAL) * process.env.INTERVAL
       break
   }
 })
@@ -37,7 +39,7 @@ let ctx = canvas.getContext('2d')
 let startTime = 0
 function loop (currentTime) {
   if (!startTime) startTime = currentTime
-  let progress = currentTime - startTime
+  progress = currentTime - startTime
 
   update(progress)
 
@@ -48,6 +50,7 @@ function init () {
   state = {
     player: new Player(100, ch / 2),
     time: 0,
+    timeOffset: 0,
     touch: false,
     track: [],
   }
@@ -87,13 +90,14 @@ function update (progress) {
 
   if (state.track.length) {
     ctx.fillStyle = '#red'
-    let w = 10
-    let d = 20
+    let w = 30
+    let d = 160
     let h = 90
     let offset = state.track[state.track.length - 1][1]
+    let offsetX = cw - w / 2 - (progress - state.timeOffset) / (process.env.INTERVAL / d)
     ctx.beginPath()
-    for (let piece of state.track.slice(-cw / d)) {
-      let x = (piece[1] - offset) * d + cw - w
+    for (let piece of state.track.slice(-cw / d - 1)) {
+      let x = (piece[1] - offset) * d + offsetX
       // if (x < 100) break
       let y = piece[0]
       ctx.moveTo(x, y)
