@@ -5,6 +5,7 @@ let state = {
   users: {},
   userWS: {},
   userCount: 0,
+  highScore: [],
   track: []
 }
 

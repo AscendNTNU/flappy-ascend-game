@@ -32,7 +32,7 @@ ws.addEventListener('message', (evt) => {
     case 'viewer':
     for (let playerId in data.players) {
       let player = data.players[playerId]
-      if (!player.dead) {
+      if (!player.dead && player.x !== 0) {
         state.players[data.id] = new Player(player.x, player.y, player.v)
       }
     }
@@ -83,7 +83,7 @@ let ctx = canvas.getContext('2d')
 let startTime = 0
 function loop (currentTime) {
   if (!startTime) startTime = currentTime
-    progress = currentTime - startTime
+  progress = currentTime - startTime
 
   update(progress)
 
@@ -94,7 +94,7 @@ function init () {
   state = {
     players: {},
     time: 0,
-    timeOffset: 0,
+    timeOffset: process.env.INTERVAL,
     track: [],
   }
 
@@ -109,6 +109,7 @@ function update (progress) {
   ctx.fillRect(0, 0, cw, ch)
 
   if (state.track.length) {
+    ctx.fillStyle = '#777'
     let w = 40
     let d = 280
     let h = 120
@@ -142,7 +143,7 @@ function update (progress) {
     }
     ctx.fill()
   }
-
+  
   ctx.fillStyle = '#f80'
   ctx.beginPath()
   for (let playerId in state.players) {
@@ -165,6 +166,10 @@ function drawPlayer (ctx, player) {
     y: (player.y + .5) | 0
   }
 
+  if (player.score === 0) ctx.fillStyle = '#940'
+  else if (player.score >= 10) ctx.fillStyle = '#aaa'
+  else if (player.score >= 20) ctx.fillStyle = '#ff0'
+
   ctx.beginPath()
   ctx.moveTo(playerPos.x, playerPos.y)
   ctx.lineTo(playerPos.x + player.w, playerPos.y)
@@ -172,7 +177,9 @@ function drawPlayer (ctx, player) {
   ctx.lineTo(playerPos.x, playerPos.y + player.h)
   ctx.fill()
 
-  ctx.fillText(player.score, playerPos.x + player.w / 2, playerPos.y - 50)
+  if (player.score !== 0) {
+    ctx.fillText(player.score, playerPos.x + player.w / 2, playerPos.y - 15)
+  }
 }
 
 function reset (player) {

@@ -64,7 +64,7 @@ function init () {
     player: new Player(100, ch / 2),
     passingBlock: false,
     time: 0,
-    timeOffset: 0,
+    timeOffset: process.env.INTERVAL,
     touch: false,
     menu: true,
     track: [],
