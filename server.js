@@ -105,6 +105,11 @@ wss.on('connection', function (ws, req) {
     }
   })
 
+  ws.isAlive = true
+  ws.on('pong', function () {
+    this.isAlive = true
+  })
+
   // Removing user from game, but may his spirit live forever in Redis
   ws.on('close', function () {
     console.log(params.userId + ' quit the game on pin ' + params.pin)
@@ -171,3 +176,13 @@ setInterval(() => {
     }
   }
 }, process.env.INTERVAL || 1500)
+
+// New loop for detecting broken connections
+setInterval(function () {
+  wss.clients.forEach(function (ws) {
+    if (!ws.isAlive) return ws.terminate()
+    
+    ws.isAlive = false
+    ws.ping('', false, true)
+  })
+}, 5000)
