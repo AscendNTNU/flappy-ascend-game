@@ -191,8 +191,7 @@ function reset () {
   })
 
   if (score > 0) {
-    console.log(`Scored ${score}`)
-    // Send score to server...
+    ws.send(JSON.stringify({ type: 'score', score }))
   }
 }
 

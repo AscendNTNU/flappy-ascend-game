@@ -1,4 +1,7 @@
 let state = {
+  viewers: [],
+  viewerWS: [],
+  viewerCount: 0,
   users: {},
   userWS: {},
   userCount: 0,
@@ -59,67 +62,102 @@ wss.on('connection', function (ws, req) {
 
   // Registering the user to pin in redis and adding user to global state
   var params = getParams(req.url)
-  console.log(params.userId + ' connected to pin ' + params.pin)
-  state.users[params.userId] = {
-    score: 0,
-    email: ''
-  }
-  state.userWS[params.userId] = ws
-  state.userCount++
-  rc.hgetall(userHash(params.pin, params.userId), function (err, reply) {
-    if (err) console.log(err)
-    let userExist = !!reply
-    if (!userExist) state.users[params.userId].timeCreated = Date.now()
-    Object.assign(state.users[params.userId], reply, {
-      timeModified: Date.now()
+
+  if (/^viewer\d+/.test(params.userId)) {
+    console.log('Someone is watching on pin ' + params.pin)
+    ws.send(JSON.stringify({
+      type: 'viewer',
+      count: ++state.viewerCount
+    }))
+    state.viewerWS[params.userId] = ws
+
+    ws.isAlive = true
+    ws.on('pong', function () {
+      this.isAlive = true
     })
-    rc.hmset(userHash(params.pin, params.userId), state.users[params.userId], function (err, reply) {
+
+    ws.on('close', function () {
+      console.log(params.userId + ' quit viewing on pin ' + params.pin)
+      delete state.viewerWS[params.userId]
+      state.viewerCount--
+    })
+  } else {
+    console.log(params.userId + ' connected to pin ' + params.pin)
+    state.users[params.userId] = {
+      score: 0,
+      email: ''
+    }
+    state.userWS[params.userId] = ws
+    state.userCount++
+    rc.hgetall(userHash(params.pin, params.userId), function (err, reply) {
+      if (err) console.log(err)
+      let userExist = !!reply
+      if (!userExist) state.users[params.userId].timeCreated = Date.now()
+      Object.assign(state.users[params.userId], reply, {
+        timeModified: Date.now()
+      })
+      rc.hmset(userHash(params.pin, params.userId), state.users[params.userId], function (err, reply) {
+        ws.send(JSON.stringify({
+          type: 'exist',
+          exists: userExist,
+          email: reply.email || ''
+        }))
+      })
+    })
+
+    // Send back all initial setup
+    rc.lrange('track', -11, -1, function (err, reply) {
+      let count = state.track.length - 11
       ws.send(JSON.stringify({
-        type: 'exist',
-        exists: userExist,
-        email: reply.email || ''
+        type: 'track',
+        track: reply.map((e, i) => e + ':' + (i + count))
       }))
     })
-  })
 
-  // Send back all initial setup
-  rc.lrange('track', -11, -1, function (err, reply) {
-    let count = state.track.length - 11
-    ws.send(JSON.stringify({
-      type: 'track',
-      track: reply.map((e, i) => e + ':' + (i + count))
-    }))
-  })
-
-  ws.on('message', function (data) {
-    data = JSON.parse(data)
-    if (data.hasOwnProperty('type')) {
-      switch (data.type) {
-        case 'init': console.log(data.message); break
-        case 'email':
-          setUserProp(rc, params.pin, params.userId, {
-            email: data.email
-          })
-          break
-        case 'jump':
-          console.log(params.userId + ' jumped!')
-          break
+    ws.on('message', function (rawData) {
+      data = JSON.parse(rawData)
+      if (data.hasOwnProperty('type')) {
+        switch (data.type) {
+          case 'init': console.log(data.message); break
+          case 'email':
+            setUserProp(rc, params.pin, params.userId, {
+              email: data.email
+            })
+            break
+          case 'jump':
+            console.log(params.userId + ' jumped!')
+            for (var viewerId in state.viewerWS) {
+              state.viewerWS[viewerId].send(rawData)
+            }
+            break
+          case 'pos':
+            for (var viewerId in state.viewerWS) {
+              state.viewerWS[viewerId].send(rawData)
+            }
+            break
+          case 'score':
+            console.log(params.userId + ' scored ' + data.score + '!')
+            break
+            for (var viewerId in state.viewerWS) {
+              state.viewerWS[viewerId].send(rawData)
+            }
+        }
       }
-    }
-  })
+    })
 
-  ws.isAlive = true
-  ws.on('pong', function () {
-    this.isAlive = true
-  })
+    ws.isAlive = true
+    ws.on('pong', function () {
+      this.isAlive = true
+    })
 
-  // Removing user from game, but may his spirit live forever in Redis
-  ws.on('close', function () {
-    console.log(params.userId + ' quit the game on pin ' + params.pin)
-    delete state.users[params.userId]
-    delete state.userWS[params.userId]
-    state.userCount--
-  })
+    // Removing user from game, but may his spirit live forever in Redis
+    ws.on('close', function () {
+      console.log(params.userId + ' quit the game on pin ' + params.pin)
+      delete state.users[params.userId]
+      delete state.userWS[params.userId]
+      state.userCount--
+    })
+  }
 })
 
 /**

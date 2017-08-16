@@ -1,6 +1,41 @@
 import Player from './components/Player'
 
+const pin = '123'
 let state = null
+let progress
+let syncedStartTime = false
+let animationFrame = null
+
+let host = window.document.location.host.replace(/:.*/, '')
+let id = Math.round(Math.random() * 10000)
+let ws = new WebSocket(`ws://${host}:${process.env.PORT}/${pin}/viewer${id}`)
+ws.addEventListener('message', (evt) => {
+  let data = JSON.parse(evt.data)
+
+  switch (data.type) {
+    case 'track':
+      setState({
+        track: data.track.map(e => e.split(':').map(f => parseInt(f)))
+      })
+      break
+    case 'update':
+      state.track.push(data.track)
+      setState()
+      startTime = 0
+      if (!syncedStartTime) {
+        syncedStartTime = true
+      }
+      state.timeOffset = Math.round(progress / process.env.INTERVAL) * process.env.INTERVAL
+      break
+    case 'pos':
+      console.log('A position')
+      break
+    case 'jump':
+      console.log('A jump!')
+      break
+  }
+})
+
 
 let canvas = document.getElementById('canvas')
 let cw = canvas.width
@@ -20,20 +55,10 @@ function loop (currentTime) {
 
 function init () {
   state = {
-    players: [],
-    time: 0
+    players: {},
+    track: [],
+    time: 0,
   }
-
-  let players = []
-  players.push(new Player(50, 50))
-  players.push(new Player(50, 0))
-  players.push(new Player(20, 30))
-
-  state.players = players
-
-  canvas.addEventListener('click', (evt) => {
-    state.players[0].jump()
-  })
 
   window.requestAnimationFrame(loop)
 }
@@ -44,24 +69,33 @@ function update (progress) {
 
   ctx.fillStyle = 'lime'
   ctx.beginPath()
-  for (let player of state.players) {
+  for (let playerId in state.players) {
+    let player = state.players[playerId]
     player.update()
-    
-    let playerPos = {
-      x: (player.x + .5) | 0,
-      y: (player.y + .5) | 0
-    }
 
-    ctx.moveTo(playerPos.x - 10, playerPos.y)
-    ctx.lineTo(playerPos.x, playerPos.y - 10)
-    ctx.lineTo(playerPos.x + 10, playerPos.y)
-    ctx.lineTo(playerPos.x, playerPos.y + 10)
+    drawPlayer(ctx, player)
   }
   ctx.fill()
 }
 
-function stop () {
-  window.cancelAnimationFrame(loop)
+function drawPlayer (ctx, player) {
+  let playerPos = {
+    x: (player.x + .5) | 0,
+    y: (player.y + .5) | 0
+  }
+
+  ctx.fillStyle = '#f80'
+  ctx.beginPath()
+  ctx.moveTo(playerPos.x, playerPos.y)
+  ctx.lineTo(playerPos.x + player.w, playerPos.y)
+  ctx.lineTo(playerPos.x + player.w, playerPos.y + player.h)
+  ctx.lineTo(playerPos.x, playerPos.y + player.h)
+  ctx.fill()
+}
+
+function setState (data) {
+  // Update drawings and other stuff...
+  state = Object.assign({}, state, data)
 }
 
 init()
