@@ -91,10 +91,10 @@ function update (progress) {
 
   ctx.fillStyle = '#f80'
   ctx.beginPath()
-  ctx.moveTo(playerPos.x - player.w / 2, playerPos.y)
-  ctx.lineTo(playerPos.x, playerPos.y - player.h / 2)
-  ctx.lineTo(playerPos.x + player.w / 2, playerPos.y)
-  ctx.lineTo(playerPos.x, playerPos.y + player.h / 2)
+  ctx.moveTo(playerPos.x, playerPos.y)
+  ctx.lineTo(playerPos.x + player.w, playerPos.y)
+  ctx.lineTo(playerPos.x + player.w, playerPos.y + player.h)
+  ctx.lineTo(playerPos.x, playerPos.y + player.h)
   ctx.fill()
 
   if (state.track.length) {
@@ -108,7 +108,10 @@ function update (progress) {
     for (let piece of state.track.slice(-cw / d - 2)) {
       let x = (piece[1] - offset) * d + offsetX
       let y = piece[0] / 100 * (ch - h * 4) + h * 1.5
-      if (player.x + player.w)
+      if (player.x + player.w > x && player.x < x + w && (player.y < y || player.y + player.h > y + h)) {
+        player.die()
+        state.track = []
+      }
 
       ctx.moveTo(x, 0)
       ctx.lineTo(x + w, 0)
