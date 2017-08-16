@@ -158,6 +158,7 @@ function game (progress) {
 
     if (!passedBlock && state.passingBlock) {
       player.addScore()
+      updateServerScore()
       state.passingBlock = false
     }
   }
@@ -184,6 +185,7 @@ function drawPlayer (ctx, player) {
 function reset () {
   let score = state.player.getScore()
   state.player.die()
+  updateServerDie()
   setState({
     track: [],
     passingBlock: false,
@@ -220,6 +222,21 @@ function updateServerJump () {
       y: state.player.y,
       v: state.player.v,
     },
+  }))
+}
+
+function updateServerScore () {
+  ws.send(JSON.stringify({
+    type: 'score',
+    id: userId,
+    score: state.player.getScore(),
+  }))
+}
+
+function updateServerDie () {
+  ws.send(JSON.stringify({
+    type: 'die',
+    id: userId,
   }))
 }
 

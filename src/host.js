@@ -47,6 +47,16 @@ ws.addEventListener('message', (evt) => {
     console.log('A position')
     break
 
+    case 'score':
+    if (state.players.hasOwnProperty(data.id)) {
+      state.players[data.id].score = data.score
+    }
+    break
+
+    case 'die':
+    delete state.players[data.id]
+    break
+
     case 'jump':
     if (state.players.hasOwnProperty(data.id)) {
       state.players[data.id].x = data.player.x
@@ -84,6 +94,9 @@ function init () {
     time: 0,
   }
 
+  ctx.font = '32px Helvetica'
+  ctx.textAlign = 'center'
+
   window.requestAnimationFrame(loop)
 }
 
@@ -119,6 +132,8 @@ function drawPlayer (ctx, player) {
   ctx.lineTo(playerPos.x + player.w, playerPos.y + player.h)
   ctx.lineTo(playerPos.x, playerPos.y + player.h)
   ctx.fill()
+
+  ctx.fillText(player.score, playerPos.x + player.w / 2, playerPos.y - 50)
 }
 
 function reset (player) {

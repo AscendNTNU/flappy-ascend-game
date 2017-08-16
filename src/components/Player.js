@@ -1,5 +1,5 @@
 export default class Player {
-  constructor (x = 0, y = 0, v = 0) {
+  constructor (x = 0, y = 0, v = 0, score = 0) {
     this.initX = x
     this.initY = y
     this.x = x
@@ -8,7 +8,7 @@ export default class Player {
     this.a = .3
     this.w = 20
     this.h = 20
-    this.score = 0
+    this.score = score
   }
 
   jump () {
