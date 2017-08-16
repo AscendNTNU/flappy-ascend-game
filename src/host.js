@@ -11,7 +11,9 @@ let host = window.document.location.host.replace(/:.*/, '')
 let id = Math.round(Math.random() * 10000)
 let dir = (process.env.DIR || '')
 if (dir.length) dir = '/' + dir
-let ws = new WebSocket(`${protocol}://${host}:${process.env.PORT}${dir}/${pin}/viewer${id}`)
+let port = ':' + (process.env.PUBLIC_PORT || process.env.PORT)
+if (process.env.PUBLIC_PORT == 80 || process.env.PUBLIC_PORT == 443) port = ''
+let ws = new WebSocket(`${protocol}://${host}:${port}${dir}/${pin}/viewer${id}`)
 ws.addEventListener('message', (evt) => {
   let data = JSON.parse(evt.data)
 
