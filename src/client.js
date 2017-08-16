@@ -26,7 +26,7 @@ ws.addEventListener('message', (evt) => {
       //   track: data.track.map(e => e.split(':').map(f => parseInt(f)))
       // })
       break
-      case 'update':
+    case 'update':
       if (!state.menu) {
         state.track.push(data.track)
         setState()
