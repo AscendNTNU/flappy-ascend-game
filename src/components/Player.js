@@ -15,8 +15,12 @@ export default class Player {
       this.v = Math.max(this.v - 20, -8)
   }
 
-  increaseScore () {
-    this.score++
+  increaseScore (n = 1) {
+    this.score += 1
+  }
+
+  getScore () {
+    return this.score
   }
 
   update () {
