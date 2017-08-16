@@ -7,6 +7,8 @@ let state = null
 let progress
 let syncedStartTime = false
 let animationFrame = null
+let uploadWait = 100
+let upload = 0
 
 let host = window.document.location.host.replace(/:.*/, '')
 let ws = new WebSocket(`ws://${host}:${process.env.PORT}/${pin}/${userId}`)
@@ -68,11 +70,17 @@ function init () {
 
   canvas.addEventListener('touchstart', (evt) => {
     state.player.jump()
+    updateServerJump()
+
     state.touch = true
   })
 
   canvas.addEventListener('mousedown', (evt) => {
-    if (!state.touch) state.player.jump()
+    if (!state.touch) {
+      state.player.jump()
+      updateServerJump()
+    }
+
     if (state.menu) state.menu = false
     state.touch = false
   })
@@ -99,6 +107,12 @@ function game (progress) {
 
   let player = state.player
   player.update()
+
+  if (++upload >= uploadWait) {
+    upload = 0
+    updateServerPos()
+  }
+
   if (player.y > ch) {
     reset()
   }
@@ -184,6 +198,24 @@ function reset () {
 
 function stop () {
   if (animationFrame) window.cancelAnimationFrame(animationFrame)
+}
+
+function updateServerPos () {
+  ws.send(JSON.stringify({
+    type: 'pos',
+    x: state.player.x,
+    y: state.player.y,
+    v: state.player.v,
+  }))
+}
+
+function updateServerJump () {
+  ws.send(JSON.stringify({
+    type: 'jump',
+    x: state.player.x,
+    y: state.player.y,
+    v: state.player.v,
+  }))
 }
 
 function setState (data) {

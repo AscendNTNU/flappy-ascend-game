@@ -101,6 +101,9 @@ wss.on('connection', function (ws, req) {
             email: data.email
           })
           break
+        case 'jump':
+          console.log(params.userId + ' jumped!')
+          break
       }
     }
   })
