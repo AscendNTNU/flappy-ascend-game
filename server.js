@@ -227,13 +227,13 @@ function userHash (pin, userId) {
  * @param {*} userId The user identification.
  * @param {*} data Some data to add/update object with.
  */
-function setUserProp (redisContext, pin, userId, data, callback = () => {}) {
+function setUserProp (redisContext, pin, userId, data, callback) {
   redisContext.hgetall(userHash(pin, userId), function (err, reply) {
     if (err) console.log(err)
     var userExist = !!reply
     if (!userExist) state.users[userId].timeCreated = Date.now()
     Object.assign(state.users[userId], reply, { timeModified: Date.now() }, data)
-    rc.hmset(userHash(pin, userId), state.users[userId], callback)
+    rc.hmset(userHash(pin, userId), state.users[userId], callback || function () {})
   })
 }
 
