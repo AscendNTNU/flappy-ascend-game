@@ -6,9 +6,10 @@ let progress
 let syncedStartTime = false
 let animationFrame = null
 
+let protocol = /s$/.test(location.protocol) ? 'wss' : 'ws'
 let host = window.document.location.host.replace(/:.*/, '')
 let id = Math.round(Math.random() * 10000)
-let ws = new WebSocket(`ws://${host}:${process.env.PORT}/${pin}/viewer${id}`)
+let ws = new WebSocket(`${protocol}://${host}:${process.env.PORT}/${pin}/viewer${id}`)
 ws.addEventListener('message', (evt) => {
   let data = JSON.parse(evt.data)
 
