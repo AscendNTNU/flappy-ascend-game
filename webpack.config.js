@@ -1,6 +1,10 @@
 var path = require("path")
 var webpack = require("webpack")
 
+// Env vars from .env file loaded into process.env
+var dotenv = require('dotenv')
+dotenv.config()
+
 module.exports = {
   entry: {
     host: './src/host.js',
