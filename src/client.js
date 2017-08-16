@@ -10,7 +10,7 @@ let animationFrame = null
 let uploadWait = 100
 let upload = 0
 
-let protocol = /s$/.test(location.protocol) ? 'wss' : 'ws'
+let protocol = /s:$/.test(location.protocol) ? 'wss' : 'ws'
 let host = window.document.location.host.replace(/:.*/, '')
 let ws = new WebSocket(`${protocol}://${host}:${process.env.PORT}/${pin}/${userId}`)
 ws.addEventListener('message', (evt) => {
