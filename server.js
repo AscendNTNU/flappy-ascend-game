@@ -13,6 +13,14 @@ var state = {
 var dotenv = require('dotenv')
 dotenv.config()
 
+var fs = require('fs')
+if (process.env.KEY) {
+  var privateKey = fs.readFileSync(process.env.KEY, 'utf8')
+  var certificate = fs.readFileSync(process.env.CERT, 'utf8')
+
+  var credentials = {key: privateKey, cert: certificate}
+}
+
 // Creating an express app making it easier to route
 var express = require('express')
 var app = express()
@@ -50,7 +58,9 @@ rc.on('connect', function () {
 
 // Creating the actual server listening to the .env PORT or 8080 (default)
 var http = require('http')
-var server = http.createServer()
+var server = null
+if (process.env.KEY) server = http.createServer(credentials)
+else server = http.createServer()
 server.on('request', app)
 server.listen(process.env.PORT || 8080, function () {
   console.log('Express server listening on http://localhost:' + this.address().port)
