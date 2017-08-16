@@ -15,6 +15,10 @@ export default class Player {
       this.v = Math.max(this.v - 20, -8)
   }
 
+  increaseScore () {
+    this.score++
+  }
+
   update () {
     this.y += this.v
     this.v = Math.min(this.v + this.a, 8)
@@ -24,6 +28,7 @@ export default class Player {
     this.x = this.initX
     this.y = this.initY
     this.v = 0
+    this.score = 0
   }
 
   render () {
