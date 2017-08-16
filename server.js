@@ -17,7 +17,7 @@ dotenv.config()
 var express = require('express')
 var app = express()
 var path = require('path')
-app.use(process.env.DIR || '/', express.static(path.join(__dirname, '/public')));
+app.use('/' + (process.env.DIR || ''), express.static(path.join(__dirname, '/public')));
 
 // Connect to the redis server which should be up and running
 var redis = require('redis')
