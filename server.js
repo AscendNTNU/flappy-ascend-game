@@ -9,15 +9,15 @@ var state = {
   track: []
 }
 
+// Env vars from .env file loaded into process.env
+var dotenv = require('dotenv')
+dotenv.config()
+
 // Creating an express app making it easier to route
 var express = require('express')
 var app = express()
 var path = require('path')
-app.use(express.static(path.join(__dirname, '/public')));
-
-// Env vars from .env file loaded into process.env
-var dotenv = require('dotenv')
-dotenv.config()
+app.use(process.env.DIR || '/', express.static(path.join(__dirname, '/public')));
 
 // Connect to the redis server which should be up and running
 var redis = require('redis')

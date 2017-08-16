@@ -73,7 +73,7 @@ function init () {
   canvas.addEventListener('touchstart', (evt) => {
     state.player.jump()
     updateServerJump()
-    
+
     state.touch = true
   })
 
