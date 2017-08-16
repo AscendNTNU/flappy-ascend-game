@@ -29,6 +29,7 @@ module.exports = {
       'process.env': {
         NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'development'),
         PORT: JSON.stringify(process.env.PORT || 8080),
+        PUBLIC_PORT: JSON.stringify(process.env.PUBLIC_PORT || 8080),
         DIR: JSON.stringify(process.env.DIR || ''),
         INTERVAL: JSON.stringify(process.env.INTERVAL || 1500)
       }
