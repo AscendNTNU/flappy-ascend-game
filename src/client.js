@@ -6,6 +6,7 @@ let email = ''
 let state = null
 let progress
 let syncedStartTime = false
+let animationFrame = null
 
 let host = window.document.location.host.replace(/:.*/, '')
 let ws = new WebSocket(`ws://${host}:${process.env.PORT}/${pin}/${userId}`)
@@ -24,13 +25,15 @@ ws.addEventListener('message', (evt) => {
       // })
       break
       case 'update':
-      state.track.push(data.track)
-      setState()
-      startTime = 0
-      if (!syncedStartTime) {
-        syncedStartTime = true
+      if (!state.menu) {
+        state.track.push(data.track)
+        setState()
+        startTime = 0
+        if (!syncedStartTime) {
+          syncedStartTime = true
+        }
+        state.timeOffset = Math.round(progress / process.env.INTERVAL) * process.env.INTERVAL
       }
-      state.timeOffset = Math.round(progress / process.env.INTERVAL) * process.env.INTERVAL
       break
   }
 })
@@ -46,9 +49,10 @@ function loop (currentTime) {
   if (!startTime) startTime = currentTime
   progress = currentTime - startTime
 
-  update(progress)
+  if (state.menu) menu(progress)
+  else game(progress)
 
-  window.requestAnimationFrame(loop)
+  animationFrame = window.requestAnimationFrame(loop)
 }
 
 function init () {
@@ -58,6 +62,7 @@ function init () {
     time: 0,
     timeOffset: 0,
     touch: false,
+    menu: true,
     track: [],
   }
 
@@ -68,15 +73,27 @@ function init () {
 
   canvas.addEventListener('mousedown', (evt) => {
     if (!state.touch) state.player.jump()
+    if (state.menu) state.menu = false
     state.touch = false
   })
 
-  ctx.textAlign = 'center'
-  ctx.font = '250px Helvetica'
-  window.requestAnimationFrame(loop)
+  animationFrame = window.requestAnimationFrame(loop)
 }
 
-function update (progress) {
+function menu (progress) {
+  ctx.fillStyle = '#048'
+  ctx.fillRect(0, 0, cw, ch)
+
+  ctx.textAlign = 'center'
+  ctx.font = '250px Helvetica'
+  ctx.fillStyle = '#036'
+  ctx.fillText(state.player.getScore(), cw / 2, ch / 2 + 100)
+
+  state.player.y = ch / 2 + Math.cos(progress / 100) * 10
+  drawPlayer(ctx, state.player)
+}
+
+function game (progress) {
   ctx.fillStyle = '#048'
   ctx.fillRect(0, 0, cw, ch)
 
@@ -89,18 +106,7 @@ function update (progress) {
   ctx.fillStyle = '#036'
   ctx.fillText(player.getScore(), cw / 2, ch / 2 + 100)
 
-  let playerPos = {
-    x: (player.x + .5) | 0,
-    y: (player.y + .5) | 0
-  }
-
-  ctx.fillStyle = '#f80'
-  ctx.beginPath()
-  ctx.moveTo(playerPos.x, playerPos.y)
-  ctx.lineTo(playerPos.x + player.w, playerPos.y)
-  ctx.lineTo(playerPos.x + player.w, playerPos.y + player.h)
-  ctx.lineTo(playerPos.x, playerPos.y + player.h)
-  ctx.fill()
+  drawPlayer(ctx, player)
 
   if (state.track.length) {
     let w = 40
@@ -143,14 +149,32 @@ function update (progress) {
   }
 }
 
+function drawPlayer (ctx, player) {
+  let playerPos = {
+    x: (player.x + .5) | 0,
+    y: (player.y + .5) | 0
+  }
+
+  ctx.fillStyle = '#f80'
+  ctx.beginPath()
+  ctx.moveTo(playerPos.x, playerPos.y)
+  ctx.lineTo(playerPos.x + player.w, playerPos.y)
+  ctx.lineTo(playerPos.x + player.w, playerPos.y + player.h)
+  ctx.lineTo(playerPos.x, playerPos.y + player.h)
+  ctx.fill()
+}
+
 /**
  * Resetting game and sending score to the server to register.
  */
 function reset () {
   let score = state.player.getScore()
   state.player.die()
-  state.track = []
-  state.passingBlock = false
+  setState({
+    track: [],
+    passingBlock: false,
+    menu: true,
+  })
 
   if (score > 0) {
     console.log(`Scored ${score}`)
@@ -159,7 +183,7 @@ function reset () {
 }
 
 function stop () {
-  window.cancelAnimationFrame(loop)
+  if (animationFrame) window.cancelAnimationFrame(animationFrame)
 }
 
 function setState (data) {
