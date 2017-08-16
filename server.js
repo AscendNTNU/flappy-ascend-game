@@ -86,10 +86,23 @@ wss.on('connection', function (ws, req) {
     console.log(params.userId + ' connected to pin ' + params.pin)
     state.users[params.userId] = {
       score: 0,
-      email: ''
+      email: '',
+      x: 0,
+      y: 0,
+      v: 0
     }
     state.userWS[params.userId] = ws
     state.userCount++
+
+    let data = JSON.stringify({
+      type: 'player',
+      id: params.userId,
+      player: state.users[params.userId],
+    })
+    for (var viewerId in state.viewerWS) {
+      state.viewerWS[viewerId].send(data)
+    }
+
     rc.hgetall(userHash(params.pin, params.userId), function (err, reply) {
       if (err) console.log(err)
       let userExist = !!reply
@@ -118,11 +131,17 @@ wss.on('connection', function (ws, req) {
             break
           case 'jump':
             console.log(params.userId + ' jumped!')
+            state.users[params.userId].x = data.player.x
+            state.users[params.userId].y = data.player.y
+            state.users[params.userId].v = data.player.v
             for (var viewerId in state.viewerWS) {
               state.viewerWS[viewerId].send(rawData)
             }
             break
           case 'pos':
+            state.users[params.userId].x = data.player.x
+            state.users[params.userId].y = data.player.y
+            state.users[params.userId].v = data.player.v
             for (var viewerId in state.viewerWS) {
               state.viewerWS[viewerId].send(rawData)
             }

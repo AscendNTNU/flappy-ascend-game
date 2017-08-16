@@ -1,10 +1,10 @@
 export default class Player {
-  constructor (x = 0, y = 0) {
+  constructor (x = 0, y = 0, v = 0) {
     this.initX = x
     this.initY = y
     this.x = x
     this.y = y
-    this.v = 0
+    this.v = v
     this.a = .3
     this.w = 20
     this.h = 20

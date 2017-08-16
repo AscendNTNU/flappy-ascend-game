@@ -14,32 +14,52 @@ ws.addEventListener('message', (evt) => {
 
   switch (data.type) {
     case 'track':
-      setState({
-        track: data.track.map(e => e.split(':').map(f => parseInt(f)))
-      })
-      break
+    setState({
+      track: data.track.map(e => e.split(':').map(f => parseInt(f)))
+    })
+    break
+
     case 'update':
-      state.track.push(data.track)
-      setState()
-      startTime = 0
-      if (!syncedStartTime) {
-        syncedStartTime = true
-      }
-      state.timeOffset = Math.round(progress / process.env.INTERVAL) * process.env.INTERVAL
-      break
+    state.track.push(data.track)
+    setState()
+    startTime = 0
+    if (!syncedStartTime) {
+      syncedStartTime = true
+    }
+    state.timeOffset = Math.round(progress / process.env.INTERVAL) * process.env.INTERVAL
+    break
+
     case 'viewer':
-      console.log(data.count + ' is watching this pin')
-      console.log(data.players)
-      break
+    console.log(data.count + ' is watching this pin')
+    console.log(data.players)
+    for (let playerId in data.players) {
+      let player = data.players[playerId]
+      state.players[data.id] = new Player(player.x, player.y, player.v)
+    }
+    break
+
+    case 'player':
+    state.players[data.id] = new Player(data.player.x, data.player.y, data.player.v)
+    console.log(data.id + ' joined!')
+    break
+
     case 'pos':
-      console.log('A position')
-      break
+    console.log('A position')
+    break
+
     case 'jump':
+    if (state.players.hasOwnProperty(data.id)) {
+      state.players[data.id].x = data.player.x
+      state.players[data.id].y = data.player.y
+      state.players[data.id].v = data.player.v
       console.log('A jump!')
-      break
+    } else {
+      console.log('Created a player!', state.players[data.id])
+      state.players[data.id] = new Player(data.player.x, data.player.y, data.player.v)
+    }
+    break
   }
 })
-
 
 let canvas = document.getElementById('canvas')
 let cw = canvas.width
@@ -78,6 +98,11 @@ function update (progress) {
     player.update()
 
     drawPlayer(ctx, player)
+
+    if (player.y > ch) {
+      reset(player)
+      delete state.players[playerId]
+    }
   }
   ctx.fill()
 }
@@ -94,6 +119,11 @@ function drawPlayer (ctx, player) {
   ctx.lineTo(playerPos.x + player.w, playerPos.y + player.h)
   ctx.lineTo(playerPos.x, playerPos.y + player.h)
   ctx.fill()
+}
+
+function reset (player) {
+  let score = player.getScore()
+  player.die()
 }
 
 function setState (data) {

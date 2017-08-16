@@ -203,9 +203,11 @@ function updateServerPos () {
   ws.send(JSON.stringify({
     type: 'pos',
     id: userId,
-    x: state.player.x,
-    y: state.player.y,
-    v: state.player.v,
+    player: {
+      x: state.player.x,
+      y: state.player.y,
+      v: state.player.v,
+    },
   }))
 }
 
@@ -213,9 +215,11 @@ function updateServerJump () {
   ws.send(JSON.stringify({
     type: 'jump',
     id: userId,
-    x: state.player.x,
-    y: state.player.y,
-    v: state.player.v,
+    player: {
+      x: state.player.x,
+      y: state.player.y,
+      v: state.player.v,
+    },
   }))
 }
 
