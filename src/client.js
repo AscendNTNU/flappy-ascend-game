@@ -128,8 +128,11 @@ function update (progress) {
  * Resetting game and sending score to the server to register.
  */
 function reset () {
+  let score = player.getScore()
   player.die()
   state.track = []
+
+  // Send score to server...
 }
 
 function stop () {
