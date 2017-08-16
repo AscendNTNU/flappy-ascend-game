@@ -17,26 +17,28 @@ ws.addEventListener('message', (evt) => {
 
   switch (data.type) {
     case 'exists':
-      if (!data.exists)
-        email = prompt('Fyll inn din mail eller ditt mobilnummer så vi kan kontakte deg:')
-      ws.send(JSON.stringify({ type: 'email', email }))
-      break
+    if (!data.exists)
+      email = prompt('Fyll inn din mail eller ditt mobilnummer så vi kan kontakte deg:')
+    ws.send(JSON.stringify({ type: 'email', email }))
+    break
+
     case 'track':
-      // setState({
-      //   track: data.track.map(e => e.split(':').map(f => parseInt(f)))
-      // })
-      break
+    // setState({
+    //   track: data.track.map(e => e.split(':').map(f => parseInt(f)))
+    // })
+    break
+
     case 'update':
-      if (!state.menu) {
-        state.track.push(data.track)
-        setState()
-        startTime = 0
-        if (!syncedStartTime) {
-          syncedStartTime = true
-        }
-        state.timeOffset = Math.round(progress / process.env.INTERVAL) * process.env.INTERVAL
+    if (!state.menu) {
+      state.track.push(data.track)
+      setState()
+      startTime = 0
+      if (!syncedStartTime) {
+        syncedStartTime = true
       }
-      break
+      state.timeOffset = Math.round(progress / process.env.INTERVAL) * process.env.INTERVAL
+    }
+    break
   }
 })
 

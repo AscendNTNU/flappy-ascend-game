@@ -247,9 +247,11 @@ setInterval(() => {
       type: 'update',
       track: piece
     })
+
     for (var userId in state.userWS) {
       state.userWS[userId].send(data)
     }
+
     for (var viewerId in state.viewerWS) {
       state.viewerWS[viewerId].send(data)
     }

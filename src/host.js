@@ -30,8 +30,6 @@ ws.addEventListener('message', (evt) => {
     break
 
     case 'viewer':
-    console.log(data.count + ' is watching this pin')
-    console.log(data.players)
     for (let playerId in data.players) {
       let player = data.players[playerId]
       state.players[data.id] = new Player(player.x, player.y, player.v)
@@ -40,11 +38,16 @@ ws.addEventListener('message', (evt) => {
 
     case 'player':
     state.players[data.id] = new Player(data.player.x, data.player.y, data.player.v)
-    console.log(data.id + ' joined!')
     break
 
     case 'pos':
-    console.log('A position')
+    if (state.players.hasOwnProperty(data.id)) {
+      state.players[data.id].x = data.player.x
+      state.players[data.id].y = data.player.y
+      state.players[data.id].v = data.player.v
+    } else {
+      state.players[data.id] = new Player(data.player.x, data.player.y, data.player.v)
+    }
     break
 
     case 'score':
@@ -62,9 +65,7 @@ ws.addEventListener('message', (evt) => {
       state.players[data.id].x = data.player.x
       state.players[data.id].y = data.player.y
       state.players[data.id].v = data.player.v
-      console.log('A jump!')
     } else {
-      console.log('Created a player!', state.players[data.id])
       state.players[data.id] = new Player(data.player.x, data.player.y, data.player.v)
     }
     break
@@ -80,9 +81,9 @@ let ctx = canvas.getContext('2d')
 let startTime = 0
 function loop (currentTime) {
   if (!startTime) startTime = currentTime
-  state.time = currentTime - startTime
+    progress = currentTime - startTime
 
-  update(state.time)
+  update(progress)
 
   window.requestAnimationFrame(loop)
 }
@@ -90,8 +91,9 @@ function loop (currentTime) {
 function init () {
   state = {
     players: {},
-    track: [],
     time: 0,
+    timeOffset: 0,
+    track: [],
   }
 
   ctx.font = '32px Helvetica'
@@ -103,6 +105,42 @@ function init () {
 function update (progress) {
   ctx.fillStyle = 'gray'
   ctx.fillRect(0, 0, cw, ch)
+
+  if (state.track.length) {
+    ctx.fillStyle = '#f80'
+    let w = 40
+    let d = 280
+    let h = 120
+    let offset = state.track[state.track.length - 1][1]
+    let offsetX = cw - w * 2 - (progress - state.timeOffset) / (process.env.INTERVAL / d)
+    // let passedBlock = false
+    ctx.beginPath()
+    for (let piece of state.track.slice(-cw / d - 2)) {
+      let x = (piece[1] - offset) * d + offsetX
+      let y = piece[0] / 100 * (ch - h * 4) + h * 1.5
+
+      // if (player.x + player.w > x && player.x < x + w) {
+      //   if (!state.passingBlock) {
+      //     state.passingBlock = true
+      //   }
+      //   passedBlock = true
+      //   if ((player.y < y || player.y + player.h > y + h)) {
+      //     reset()
+      //   }
+      // }
+
+      ctx.moveTo(x, 0)
+      ctx.lineTo(x + w, 0)
+      ctx.lineTo(x + w, y)
+      ctx.lineTo(x, y)
+
+      ctx.moveTo(x, y + h)
+      ctx.lineTo(x + w, y + h)
+      ctx.lineTo(x + w, ch)
+      ctx.lineTo(x, ch)
+    }
+    ctx.fill()
+  }
 
   ctx.fillStyle = '#f80'
   ctx.beginPath()
