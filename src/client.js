@@ -80,8 +80,7 @@ function update (progress) {
   let player = state.player
   player.update()
   if (player.y > ch) {
-    player.die()
-    state.track = []
+    reset()
   }
   
   let playerPos = {
@@ -98,7 +97,6 @@ function update (progress) {
   ctx.fill()
 
   if (state.track.length) {
-    ctx.fillStyle = '#red'
     let w = 40
     let d = 280
     let h = 120
@@ -109,8 +107,7 @@ function update (progress) {
       let x = (piece[1] - offset) * d + offsetX
       let y = piece[0] / 100 * (ch - h * 4) + h * 1.5
       if (player.x + player.w > x && player.x < x + w && (player.y < y || player.y + player.h > y + h)) {
-        player.die()
-        state.track = []
+        reset()
       }
 
       ctx.moveTo(x, 0)
@@ -125,6 +122,14 @@ function update (progress) {
     }
     ctx.fill()
   }
+}
+
+/**
+ * Resetting game and sending score to the server to register.
+ */
+function reset () {
+  player.die()
+  state.track = []
 }
 
 function stop () {
