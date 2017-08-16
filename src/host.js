@@ -27,6 +27,10 @@ ws.addEventListener('message', (evt) => {
       }
       state.timeOffset = Math.round(progress / process.env.INTERVAL) * process.env.INTERVAL
       break
+    case 'viewer':
+      console.log(data.count + ' is watching this pin')
+      console.log(data.players)
+      break
     case 'pos':
       console.log('A position')
       break
@@ -67,7 +71,7 @@ function update (progress) {
   ctx.fillStyle = 'gray'
   ctx.fillRect(0, 0, cw, ch)
 
-  ctx.fillStyle = 'lime'
+  ctx.fillStyle = '#f80'
   ctx.beginPath()
   for (let playerId in state.players) {
     let player = state.players[playerId]
@@ -84,7 +88,6 @@ function drawPlayer (ctx, player) {
     y: (player.y + .5) | 0
   }
 
-  ctx.fillStyle = '#f80'
   ctx.beginPath()
   ctx.moveTo(playerPos.x, playerPos.y)
   ctx.lineTo(playerPos.x + player.w, playerPos.y)

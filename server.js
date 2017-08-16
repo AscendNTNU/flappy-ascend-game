@@ -67,7 +67,8 @@ wss.on('connection', function (ws, req) {
     console.log('Someone is watching on pin ' + params.pin)
     ws.send(JSON.stringify({
       type: 'viewer',
-      count: ++state.viewerCount
+      count: ++state.viewerCount,
+      players: state.users
     }))
     state.viewerWS[params.userId] = ws
 
@@ -105,15 +106,6 @@ wss.on('connection', function (ws, req) {
       })
     })
 
-    // Send back all initial setup
-    rc.lrange('track', -11, -1, function (err, reply) {
-      let count = state.track.length - 11
-      ws.send(JSON.stringify({
-        type: 'track',
-        track: reply.map((e, i) => e + ':' + (i + count))
-      }))
-    })
-
     ws.on('message', function (rawData) {
       data = JSON.parse(rawData)
       if (data.hasOwnProperty('type')) {
@@ -144,12 +136,7 @@ wss.on('connection', function (ws, req) {
         }
       }
     })
-
-    ws.isAlive = true
-    ws.on('pong', function () {
-      this.isAlive = true
-    })
-
+    
     // Removing user from game, but may his spirit live forever in Redis
     ws.on('close', function () {
       console.log(params.userId + ' quit the game on pin ' + params.pin)
@@ -158,6 +145,20 @@ wss.on('connection', function (ws, req) {
       state.userCount--
     })
   }
+
+  ws.isAlive = true
+  ws.on('pong', function () {
+    this.isAlive = true
+  })
+
+  // Send back 10 last steps on track on initial setup
+  rc.lrange('track', -11, -1, function (err, reply) {
+    let count = state.track.length - 11
+    ws.send(JSON.stringify({
+      type: 'track',
+      track: reply.map((e, i) => e + ':' + (i + count))
+    }))
+  })
 })
 
 /**
@@ -214,6 +215,9 @@ setInterval(() => {
     })
     for (var userId in state.userWS) {
       state.userWS[userId].send(data)
+    }
+    for (var viewerId in state.viewerWS) {
+      state.viewerWS[viewerId].send(data)
     }
   }
 }, process.env.INTERVAL || 1500)
