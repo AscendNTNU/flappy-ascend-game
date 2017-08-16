@@ -1,4 +1,4 @@
-let state = {
+var state = {
   viewers: [],
   viewerWS: [],
   viewerCount: 0,
@@ -34,7 +34,7 @@ rc.on('connect', function () {
   rc.del('track', function (err, reply) {
     if (err) console.log(err)
 
-    let track = ['track']
+    var track = ['track']
     for (var i = 0; i < 10; i++) {
       track.push(Math.round(Math.random() * 100))
     }
@@ -95,7 +95,7 @@ wss.on('connection', function (ws, req) {
     state.userWS[params.userId] = ws
     state.userCount++
 
-    let data = JSON.stringify({
+    var data = JSON.stringify({
       type: 'player',
       id: params.userId,
       player: state.users[params.userId],
@@ -106,7 +106,7 @@ wss.on('connection', function (ws, req) {
 
     rc.hgetall(userHash(params.pin, params.userId), function (err, reply) {
       if (err) console.log(err)
-      let userExist = !!reply
+      var userExist = !!reply
       if (!userExist) state.users[params.userId].timeCreated = Date.now()
       Object.assign(state.users[params.userId], reply, {
         timeModified: Date.now()
@@ -188,7 +188,7 @@ wss.on('connection', function (ws, req) {
 
   // Send back 10 last steps on track on initial setup
   rc.lrange('track', -11, -1, function (err, reply) {
-    let count = state.track.length - 11
+    var count = state.track.length - 11
     ws.send(JSON.stringify({
       type: 'track',
       track: reply.map((e, i) => e + ':' + (i + count))
@@ -202,7 +202,7 @@ wss.on('connection', function (ws, req) {
  * @param {string} url Url from web socket, making user identifyable.
  */
 function getParams (url) {
-  let parsed = url.slice(1).split(/\//)
+  var parsed = url.slice(1).split(/\//)
   return {
     pin: parsed[0],
     userId: parsed[1],
@@ -230,7 +230,7 @@ function userHash (pin, userId) {
 function setUserProp (redisContext, pin, userId, data, callback = () => {}) {
   redisContext.hgetall(userHash(pin, userId), function (err, reply) {
     if (err) console.log(err)
-    let userExist = !!reply
+    var userExist = !!reply
     if (!userExist) state.users[userId].timeCreated = Date.now()
     Object.assign(state.users[userId], reply, { timeModified: Date.now() }, data)
     rc.hmset(userHash(pin, userId), state.users[userId], callback)
@@ -238,7 +238,7 @@ function setUserProp (redisContext, pin, userId, data, callback = () => {}) {
 }
 
 setInterval(() => {
-  let piece = [Math.round(Math.random() * 100), state.track.length]
+  var piece = [Math.round(Math.random() * 100), state.track.length]
   state.track.push(piece)
   rc.rpush('track', piece[0])
 
