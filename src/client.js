@@ -54,6 +54,7 @@ function loop (currentTime) {
 function init () {
   state = {
     player: new Player(100, ch / 2),
+    passingBlock: false,
     time: 0,
     timeOffset: 0,
     touch: false,
@@ -70,6 +71,8 @@ function init () {
     state.touch = false
   })
 
+  ctx.textAlign = 'center'
+  ctx.font = '250px Helvetica'
   window.requestAnimationFrame(loop)
 }
 
@@ -82,7 +85,10 @@ function update (progress) {
   if (player.y > ch) {
     reset()
   }
-  
+
+  ctx.fillStyle = '#036'
+  ctx.fillText(player.getScore(), cw / 2, ch / 2 + 100)
+
   let playerPos = {
     x: (player.x + .5) | 0,
     y: (player.y + .5) | 0
@@ -102,12 +108,20 @@ function update (progress) {
     let h = 120
     let offset = state.track[state.track.length - 1][1]
     let offsetX = cw - w * 2 - (progress - state.timeOffset) / (process.env.INTERVAL / d)
+    let passedBlock = false
     ctx.beginPath()
     for (let piece of state.track.slice(-cw / d - 2)) {
       let x = (piece[1] - offset) * d + offsetX
       let y = piece[0] / 100 * (ch - h * 4) + h * 1.5
-      if (player.x + player.w > x && player.x < x + w && (player.y < y || player.y + player.h > y + h)) {
-        reset()
+
+      if (player.x + player.w > x && player.x < x + w) {
+        if (!state.passingBlock) {
+          state.passingBlock = true
+        }
+        passedBlock = true
+        if ((player.y < y || player.y + player.h > y + h)) {
+          reset()
+        }
       }
 
       ctx.moveTo(x, 0)
@@ -121,6 +135,11 @@ function update (progress) {
       ctx.lineTo(x, ch)
     }
     ctx.fill()
+
+    if (!passedBlock && state.passingBlock) {
+      player.addScore()
+      state.passingBlock = false
+    }
   }
 }
 
@@ -128,11 +147,15 @@ function update (progress) {
  * Resetting game and sending score to the server to register.
  */
 function reset () {
-  let score = player.getScore()
-  player.die()
+  let score = state.player.getScore()
+  state.player.die()
   state.track = []
+  state.passingBlock = false
 
-  // Send score to server...
+  if (score > 0) {
+    console.log(`Scored ${score}`)
+    // Send score to server...
+  }
 }
 
 function stop () {
