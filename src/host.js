@@ -32,7 +32,9 @@ ws.addEventListener('message', (evt) => {
     case 'viewer':
     for (let playerId in data.players) {
       let player = data.players[playerId]
-      state.players[data.id] = new Player(player.x, player.y, player.v)
+      if (!player.dead) {
+        state.players[data.id] = new Player(player.x, player.y, player.v)
+      }
     }
     break
 
@@ -103,11 +105,10 @@ function init () {
 }
 
 function update (progress) {
-  ctx.fillStyle = 'gray'
+  ctx.fillStyle = '#333'
   ctx.fillRect(0, 0, cw, ch)
 
   if (state.track.length) {
-    ctx.fillStyle = '#f80'
     let w = 40
     let d = 280
     let h = 120
