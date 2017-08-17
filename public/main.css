@@ -53,6 +53,12 @@ body {
   content: "(Ingen enda)";
 }
 
+.list {
+  overflow-y: auto;
+  height: 100vh;
+  max-height: 100vw;
+}
+
 .list :first-child {
   color: #B2AA00;
   font-weight: bold;
