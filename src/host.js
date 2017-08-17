@@ -129,21 +129,10 @@ function update (progress) {
     let h = 120
     let offset = state.track[state.track.length - 1][1]
     let offsetX = cw - w * 2 - (progress - state.timeOffset) / (process.env.INTERVAL / d)
-    // let passedBlock = false
     ctx.beginPath()
     for (let piece of state.track.slice(-cw / d - 2)) {
       let x = (piece[1] - offset) * d + offsetX
       let y = piece[0] / 100 * (ch - h * 4) + h * 1.5
-
-      // if (player.x + player.w > x && player.x < x + w) {
-      //   if (!state.passingBlock) {
-      //     state.passingBlock = true
-      //   }
-      //   passedBlock = true
-      //   if ((player.y < y || player.y + player.h > y + h)) {
-      //     reset()
-      //   }
-      // }
 
       ctx.moveTo(x, 0)
       ctx.lineTo(x + w, 0)
