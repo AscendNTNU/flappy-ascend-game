@@ -1,8 +1,9 @@
 import Player from './components/Player'
 
 const pin = '123'
-const userId = 'User' + Math.round(Math.random() * 1000) // prompt('username')
-let email = ''
+let userId = prompt('Kallenavn:') || 'Anonym' + Math.round(Math.random() * 1000)
+userId = userId.replace(/[^a-zøæå0-9]/ig, '') || 'Anonym' + Math.round(Math.random() * 1000)
+let email = prompt('Email eller mobil: (Noe vi kan kontakte deg via)') || ''
 let state = null
 let progress
 let syncedStartTime = false
