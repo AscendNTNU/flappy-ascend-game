@@ -1,9 +1,29 @@
 import Player from './components/Player'
 
 const pin = '123'
-let userId = prompt('Kallenavn:') || 'Anonym' + Math.round(Math.random() * 1000)
-userId = userId.replace(/[^a-zøæå0-9]/ig, '') || 'Anonym' + Math.round(Math.random() * 1000)
-let email = prompt('Email eller mobil: (Noe vi kan kontakte deg via)') || ''
+let userId = ''
+let email = ''
+
+try {
+  if (localStorage.getItem('username')) {
+    userId = localStorage.getItem('username')
+  } else {
+    userId = prompt('Kallenavn:') || 'Anonym' + Math.round(Math.random() * 1000)
+    userId = userId.replace(/[^a-zøæå0-9]/ig, '') || 'Anonym' + Math.round(Math.random() * 1000)
+    localStorage.setItem('username', userId)
+  }
+  if (localStorage.getItem('email')) {
+    email = localStorage.getItem('email')
+  } else {
+    email = prompt('Email eller mobil: (Noe vi kan kontakte deg via)') || ''
+    localStorage.setItem('email', email)
+  }
+} catch (ex) {
+  userId = prompt('Kallenavn:') || 'Anonym' + Math.round(Math.random() * 1000)
+  userId = userId.replace(/[^a-zøæå0-9]/ig, '') || 'Anonym' + Math.round(Math.random() * 1000)
+  email = prompt('Email eller mobil: (Noe vi kan kontakte deg via)') || ''
+}
+
 let state = null
 let progress
 let syncedStartTime = false
