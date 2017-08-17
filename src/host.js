@@ -9,6 +9,8 @@ let playerImage = new Image()
 playerImage.src = 'drone-mini.png'
 let groundRobotImage = new Image()
 groundRobotImage.src = 'ground-robot-mini.png'
+let ascendImage = new Image()
+ascendImage.src = 'logo-ascend-art-under.png'
 
 let protocol = /s:$/.test(location.protocol) ? 'wss' : 'ws'
 let host = window.document.location.host.replace(/:.*/, '')
@@ -129,6 +131,7 @@ function init () {
 function update (progress) {
   ctx.fillStyle = '#333'
   ctx.fillRect(0, 0, cw, ch)
+  ctx.drawImage(ascendImage, cw / 2 - 55, ch / 2 - 58)
 
   if (state.track.length) {
     ctx.fillStyle = '#777'

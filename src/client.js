@@ -102,8 +102,12 @@ function init () {
 function menu (progress) {
   ctx.fillStyle = '#048'
   ctx.fillRect(0, 0, cw, ch)
-
+  
   ctx.textAlign = 'center'
+  ctx.font = '40px Helvetica'
+  ctx.fillStyle = '#999'
+  ctx.fillText('Trykk for å starte', cw / 2, 100)
+
   ctx.font = '250px Helvetica'
   ctx.fillStyle = '#036'
   ctx.fillText(state.player.getScore(), cw / 2, ch / 2 + 100)
@@ -170,7 +174,7 @@ function game (progress) {
       ctx.lineTo(x + w, ch - 33)
       ctx.lineTo(x, ch - 33)
     }
-    ctx.fillStyle = '#f80'
+    ctx.fillStyle = '#999'
     ctx.fill()
 
     if (!passedBlock && state.passingBlock) {
