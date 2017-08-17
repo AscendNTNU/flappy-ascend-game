@@ -41,6 +41,8 @@ ws.addEventListener('message', (evt) => {
         state.players[data.id] = new Player(player.x, player.y, player.v)
       }
     }
+    state.highScore = data.highScore
+    console.log(state.highScore)
     break
 
     case 'player':
@@ -60,6 +62,12 @@ ws.addEventListener('message', (evt) => {
     case 'score':
     if (state.players.hasOwnProperty(data.id)) {
       state.players[data.id].score = data.score
+    }
+    break
+
+    case 'highscore':
+    if (state.players.hasOwnProperty(data.id)) {
+      state.players[data.id].highscore = data.score
     }
     break
 
@@ -101,6 +109,7 @@ function init () {
     time: 0,
     timeOffset: process.env.INTERVAL,
     track: [],
+    highScore: {},
   }
 
   ctx.font = '32px Helvetica'

@@ -5,7 +5,7 @@ var state = {
   users: {},
   userWS: {},
   userCount: 0,
-  highScore: [],
+  highScore: {},
   track: []
 }
 
@@ -54,6 +54,11 @@ rc.on('connect', function () {
       else redisReady = true
     })
   })
+
+  rc.hgetall('highscore', function (err, reply) {
+    if (err) console.log(err)
+    state.highScore = reply
+  })
 })
 
 // Creating the actual server listening to the .env PORT or 8080 (default)
@@ -97,8 +102,8 @@ wss.on('connection', function (ws, req) {
   } else {
     console.log(params.userId + ' connected to pin ' + params.pin)
     state.users[params.userId] = {
-      score: 0,
       email: '',
+      score: 0,
       x: 0,
       y: 0,
       v: 0
@@ -142,7 +147,6 @@ wss.on('connection', function (ws, req) {
             })
             break
           case 'jump':
-            console.log(params.userId + ' jumped!')
             state.users[params.userId].dead = false
             state.users[params.userId].x = data.player.x
             state.users[params.userId].y = data.player.y
@@ -166,6 +170,20 @@ wss.on('connection', function (ws, req) {
             for (var viewerId in state.viewerWS) {
               state.viewerWS[viewerId].send(rawData)
             }
+            rc.hget('highscore', userHash(params.pin, params.userId), function (err, reply) {
+              if (data.score > reply) {
+                console.log(params.userId + ' set new highscore to ' + data.score + '!')
+                rc.hmset('highscore', userHash(params.pin, params.userId), data.score)
+                var newData = JSON.stringify({
+                  type: 'highscore',
+                  id: params.userId,
+                  score: data.score
+                })
+                for (var viewerId in state.viewerWS) {
+                  state.viewerWS[viewerId].send(newData)
+                }
+              }
+            })
             break
           case 'die':
             state.users[params.userId].dead = true
@@ -173,12 +191,6 @@ wss.on('connection', function (ws, req) {
               state.viewerWS[viewerId].send(rawData)
             }
             break
-          case 'score':
-            console.log(params.userId + ' scored ' + data.score + '!')
-            break
-            for (var viewerId in state.viewerWS) {
-              state.viewerWS[viewerId].send(rawData)
-            }
         }
       }
     })

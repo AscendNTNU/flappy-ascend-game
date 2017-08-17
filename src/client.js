@@ -200,7 +200,11 @@ function reset () {
   })
 
   if (score > 0) {
-    ws.send(JSON.stringify({ type: 'score', score }))
+    ws.send(JSON.stringify({
+      type: 'score',
+      id: userId,
+      score,
+    }))
   }
 }
 
