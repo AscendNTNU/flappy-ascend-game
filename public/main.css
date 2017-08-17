@@ -78,18 +78,22 @@ body {
 
 .btn {
   color: #ddd;
-  padding: 8px 6px;
+  padding: 8px 10px;
   margin: 8px;
-  position: fixed;
-  top: 0;
-  right: 0;
   border-radius: 4px;
   box-shadow: 0 0 8px #000;
   background-color: #0a0;
-  text-decoration: none;
-  font-size: 2em;
 }
 
 .btn:hover {
-  background-color: #0f0;
+  background-color: #0b0;
+}
+
+.play {
+  position: fixed;
+  top: 0;
+  right: calc(50% - 44px);
+  background-color: #0a0;
+  text-decoration: none;
+  font-size: 2em;
 }
