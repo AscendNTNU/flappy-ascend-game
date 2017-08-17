@@ -42,7 +42,7 @@ ws.addEventListener('message', (evt) => {
       }
     }
     state.highScore = data.highScore
-    console.log(state.highScore)
+    updateList()
     break
 
     case 'player':
@@ -69,6 +69,8 @@ ws.addEventListener('message', (evt) => {
     if (state.players.hasOwnProperty(data.id)) {
       state.players[data.id].highscore = data.score
     }
+    state.highScore[userHash(data.id)] = data.score
+    updateList()
     break
 
     case 'die':
@@ -92,6 +94,8 @@ let cw = canvas.width
 let ch = canvas.height
 
 let ctx = canvas.getContext('2d')
+
+let highScoreList = document.querySelector('.list')
 
 let startTime = 0
 function loop (currentTime) {
@@ -183,6 +187,34 @@ function drawPlayer (ctx, player) {
   if (player.score !== 0) {
     ctx.fillText(player.score, playerPos.x + player.w / 2, playerPos.y - 15)
   }
+}
+
+function updateList () {
+  let list = []
+  let str = ''
+
+  for (let userId in state.highScore) {
+    let pieces = userId.split(':')
+    if (pieces[1] === pin) {
+      let userName = pieces[3]
+      list.push({
+        userName,
+        score: parseInt(state.highScore[userId]) || 0
+      })
+    }
+  }
+
+  list.sort((a, b) => b.score - a.score)
+
+  for (let user of list) {
+    str += `<div>${user.userName}: ${user.score}</div>`
+  }
+
+  highScoreList.innerHTML = str
+}
+
+function userHash (userId) {
+  return 'pin:' + pin + ':user:' + userId
 }
 
 function reset (player) {

@@ -58,6 +58,7 @@ rc.on('connect', function () {
   rc.hgetall('highscore', function (err, reply) {
     if (err) console.log(err)
     state.highScore = reply
+    console.log(reply)
   })
 })
 
@@ -174,6 +175,7 @@ wss.on('connection', function (ws, req) {
               if (data.score > reply) {
                 console.log(params.userId + ' set new highscore to ' + data.score + '!')
                 rc.hmset('highscore', userHash(params.pin, params.userId), data.score)
+                state.highScore[userHash(params.pin, params.userId)] = data.score
                 var newData = JSON.stringify({
                   type: 'highscore',
                   id: params.userId,
