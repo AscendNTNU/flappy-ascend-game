@@ -206,8 +206,9 @@ function updateList () {
 
   list.sort((a, b) => b.score - a.score)
 
+  let i = 0
   for (let user of list) {
-    str += `<div>${user.userName}: ${user.score}</div>`
+    str += `<div>${++i}. ${user.userName}: ${user.score}</div>`
   }
 
   highScoreList.innerHTML = str
