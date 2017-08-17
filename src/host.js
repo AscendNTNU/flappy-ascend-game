@@ -131,7 +131,7 @@ function init () {
 function update (progress) {
   ctx.fillStyle = '#333'
   ctx.fillRect(0, 0, cw, ch)
-  ctx.drawImage(ascendImage, cw / 2 - 55, ch / 2 - 58)
+  ctx.drawImage(ascendImage, cw / 2 - 55, ch / 2 - 80)
 
   if (state.track.length) {
     ctx.fillStyle = '#777'
