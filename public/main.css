@@ -53,6 +53,23 @@ body {
   content: "(Ingen enda)";
 }
 
+.list :first-child {
+  color: #B2AA00;
+  font-weight: bold;
+  font-size: 1.4em;
+}
+
+.list :nth-child(2) {
+  color: #D1D1D1;
+  font-weight: bold;
+  font-size: 1.2em;
+}
+
+.list :nth-child(3) {
+  color: #835100;
+  font-weight: bold;
+}
+
 .btn {
   color: #ddd;
   padding: 8px 6px;
