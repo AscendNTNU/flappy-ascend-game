@@ -24,6 +24,7 @@ export default class Player {
   }
 
   update () {
+    this.x = Math.min(this.x + .1, 400)
     this.y += this.v
     this.v = Math.min(this.v + this.a, 8)
   }
