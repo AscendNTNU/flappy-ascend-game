@@ -5,6 +5,8 @@ let state = null
 let progress
 let syncedStartTime = false
 let animationFrame = null
+let playerImage = new Image()
+playerImage.src = 'drone-mini.png'
 
 let protocol = /s:$/.test(location.protocol) ? 'wss' : 'ws'
 let host = window.document.location.host.replace(/:.*/, '')
@@ -173,16 +175,22 @@ function drawPlayer (ctx, player) {
     y: (player.y + .5) | 0
   }
 
-  if (player.score === 0) ctx.fillStyle = '#940'
-  else if (player.score >= 10) ctx.fillStyle = '#aaa'
+  if (player.score >= 10) ctx.fillStyle = '#aaa'
   else if (player.score >= 20) ctx.fillStyle = '#ff0'
 
-  ctx.beginPath()
-  ctx.moveTo(playerPos.x, playerPos.y)
-  ctx.lineTo(playerPos.x + player.w, playerPos.y)
-  ctx.lineTo(playerPos.x + player.w, playerPos.y + player.h)
-  ctx.lineTo(playerPos.x, playerPos.y + player.h)
-  ctx.fill()
+  // ctx.beginPath()
+  // ctx.moveTo(playerPos.x, playerPos.y)
+  // ctx.lineTo(playerPos.x + player.w, playerPos.y)
+  // ctx.lineTo(playerPos.x + player.w, playerPos.y + player.h)
+  // ctx.lineTo(playerPos.x, playerPos.y + player.h)
+  // ctx.fill()
+
+  if (player.score === 0) ctx.globalAlpha = .3
+  ctx.drawImage(playerImage,
+    playerPos.x - playerImage.width / 2 + player.w / 2,
+    playerPos.y - playerImage.height / 2 + player.h / 2
+  )
+  if (player.score === 0) ctx.globalAlpha = 1
 
   if (player.score !== 0) {
     ctx.fillText(player.score, playerPos.x + player.w / 2, playerPos.y - 15)

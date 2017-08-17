@@ -6,7 +6,7 @@ export default class Player {
     this.y = y
     this.v = v
     this.a = .3
-    this.w = 20
+    this.w = 40
     this.h = 20
     this.score = score
   }

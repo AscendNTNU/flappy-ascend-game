@@ -9,6 +9,8 @@ let syncedStartTime = false
 let animationFrame = null
 let uploadWait = 100
 let upload = 0
+let playerImage = new Image()
+playerImage.src = '../drone-mini.png'
 
 let protocol = /s:$/.test(location.protocol) ? 'wss' : 'ws'
 let host = window.document.location.host.replace(/:.*/, '')
@@ -161,6 +163,7 @@ function game (progress) {
       ctx.lineTo(x + w, ch)
       ctx.lineTo(x, ch)
     }
+    ctx.fillStyle = '#f80'
     ctx.fill()
 
     if (!passedBlock && state.passingBlock) {
@@ -177,13 +180,17 @@ function drawPlayer (ctx, player) {
     y: (player.y + .5) | 0
   }
 
-  ctx.fillStyle = '#f80'
-  ctx.beginPath()
-  ctx.moveTo(playerPos.x, playerPos.y)
-  ctx.lineTo(playerPos.x + player.w, playerPos.y)
-  ctx.lineTo(playerPos.x + player.w, playerPos.y + player.h)
-  ctx.lineTo(playerPos.x, playerPos.y + player.h)
-  ctx.fill()
+  // ctx.beginPath()
+  // ctx.moveTo(playerPos.x, playerPos.y)
+  // ctx.lineTo(playerPos.x + player.w, playerPos.y)
+  // ctx.lineTo(playerPos.x + player.w, playerPos.y + player.h)
+  // ctx.lineTo(playerPos.x, playerPos.y + player.h)
+  // ctx.fill()
+
+  ctx.drawImage(playerImage,
+    playerPos.x - playerImage.width / 2 + player.w / 2,
+    playerPos.y - playerImage.height / 2 + player.h / 2
+  )
 }
 
 /**
