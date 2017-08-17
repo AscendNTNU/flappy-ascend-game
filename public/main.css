@@ -5,6 +5,7 @@
 }
 
 body {
+  font-family: Questrial, Helvetica, sans-serif;
   min-height: 100vh;
   width: 100%;
   margin: 0;
@@ -15,7 +16,7 @@ body {
   background-color: var(--color);
   display: flex;
   flex-flow: wrap row;
-  justify-content: space-around;
+  justify-content: center;
 }
 
 #canvas {
@@ -35,11 +36,21 @@ body {
 }
 
 #highscorelist {
+  color: #aaa;
+  text-align: center;
   flex: 1 1 200px;
   height: 100vh;
   max-height: 100vw;
   height: 100vh;
   max-height: 100vw;
+
+  display: flex;
+  flex-flow: nowrap column;
+  justify-content: center;
+}
+
+.list:empty:after {
+  content: "(Ingen enda)";
 }
 
 .btn {
@@ -52,7 +63,6 @@ body {
   border-radius: 4px;
   box-shadow: 0 0 8px #000;
   background-color: #0a0;
-  font-family: Questrial, Helvetica, sans-serif;
   text-decoration: none;
   font-size: 2em;
 }

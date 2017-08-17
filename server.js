@@ -79,7 +79,8 @@ wss.on('connection', function (ws, req) {
     ws.send(JSON.stringify({
       type: 'viewer',
       count: ++state.viewerCount,
-      players: state.users
+      players: state.users,
+      highScore: state.highScore
     }))
     state.viewerWS[params.userId] = ws
 
