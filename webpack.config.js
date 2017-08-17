@@ -5,6 +5,22 @@ var webpack = require("webpack")
 var dotenv = require('dotenv')
 dotenv.config()
 
+var plugins = [
+  new webpack.DefinePlugin({
+    'process.env': {
+      NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'development'),
+      PORT: JSON.stringify(process.env.PORT || 8080),
+      PUBLIC_PORT: JSON.stringify(process.env.PUBLIC_PORT || 8080),
+      DIR: JSON.stringify(process.env.DIR || ''),
+      INTERVAL: JSON.stringify(process.env.INTERVAL || 1500)
+    }
+  })
+]
+
+if (process.env.NODE_ENV === 'production') {
+  plugins.push(new webpack.optimize.UglifyJsPlugin({ compress: { warnings: false } }))
+}
+
 module.exports = {
   entry: {
     host: './src/host.js',
@@ -24,17 +40,7 @@ module.exports = {
     publicPath: '/dist/',
     filename: '[name].bundle.js'
   },
-  plugins: [
-    new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'development'),
-        PORT: JSON.stringify(process.env.PORT || 8080),
-        PUBLIC_PORT: JSON.stringify(process.env.PUBLIC_PORT || 8080),
-        DIR: JSON.stringify(process.env.DIR || ''),
-        INTERVAL: JSON.stringify(process.env.INTERVAL || 1500)
-      }
-    }),
-  ],
+  plugins: plugins,
   module: {
     rules: [
       {
