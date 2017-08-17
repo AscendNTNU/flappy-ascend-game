@@ -59,19 +59,19 @@ body {
   max-height: 100vw;
 }
 
-.list :first-child {
+.list [data-index="1"] {
   color: #B2AA00;
   font-weight: bold;
   font-size: 1.4em;
 }
 
-.list :nth-child(2) {
+.list [data-index="2"] {
   color: #D1D1D1;
   font-weight: bold;
   font-size: 1.2em;
 }
 
-.list :nth-child(3) {
+.list [data-index="3"] {
   color: #835100;
   font-weight: bold;
 }
