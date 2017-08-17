@@ -11,6 +11,8 @@ let uploadWait = 100
 let upload = 0
 let playerImage = new Image()
 playerImage.src = '../drone-mini.png'
+let groundRobotImage = new Image()
+groundRobotImage.src = '../ground-robot-mini.png'
 
 let protocol = /s:$/.test(location.protocol) ? 'wss' : 'ws'
 let host = window.document.location.host.replace(/:.*/, '')
@@ -153,6 +155,11 @@ function game (progress) {
         }
       }
 
+      ctx.drawImage(
+        groundRobotImage, x - groundRobotImage.width / 2 + w / 2,
+        ch - groundRobotImage.height
+      )
+
       ctx.moveTo(x, 0)
       ctx.lineTo(x + w, 0)
       ctx.lineTo(x + w, y)
@@ -160,8 +167,8 @@ function game (progress) {
 
       ctx.moveTo(x, y + h)
       ctx.lineTo(x + w, y + h)
-      ctx.lineTo(x + w, ch)
-      ctx.lineTo(x, ch)
+      ctx.lineTo(x + w, ch - 33)
+      ctx.lineTo(x, ch - 33)
     }
     ctx.fillStyle = '#f80'
     ctx.fill()

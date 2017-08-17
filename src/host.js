@@ -7,6 +7,8 @@ let syncedStartTime = false
 let animationFrame = null
 let playerImage = new Image()
 playerImage.src = 'drone-mini.png'
+let groundRobotImage = new Image()
+groundRobotImage.src = 'ground-robot-mini.png'
 
 let protocol = /s:$/.test(location.protocol) ? 'wss' : 'ws'
 let host = window.document.location.host.replace(/:.*/, '')
@@ -139,6 +141,11 @@ function update (progress) {
     for (let piece of state.track.slice(-cw / d - 2)) {
       let x = (piece[1] - offset) * d + offsetX
       let y = piece[0] / 100 * (ch - h * 4) + h * 1.5
+      
+      ctx.drawImage(
+        groundRobotImage, x - groundRobotImage.width / 2 + w / 2,
+        ch - groundRobotImage.height
+      )
 
       ctx.moveTo(x, 0)
       ctx.lineTo(x + w, 0)
@@ -147,8 +154,8 @@ function update (progress) {
 
       ctx.moveTo(x, y + h)
       ctx.lineTo(x + w, y + h)
-      ctx.lineTo(x + w, ch)
-      ctx.lineTo(x, ch)
+      ctx.lineTo(x + w, ch - 33)
+      ctx.lineTo(x, ch - 33)
     }
     ctx.fill()
   }
