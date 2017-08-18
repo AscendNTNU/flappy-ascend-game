@@ -29,11 +29,11 @@ function register () {
 register()
 document.querySelector('.change-name').innerHTML = `Kallenavn: ${userId} (Trykk for å endre)`
 document.querySelector('.change-name').addEventListener('click', () => {
-  userId = prompt('Kallenavn:') || 'Anonym' + Math.round(Math.random() * 1000)
-  userId = userId.replace(/[^a-zøæå0-9]/ig, '') || 'Anonym' + Math.round(Math.random() * 1000)
+  userId = prompt('Kallenavn:') || userId
+  userId = userId.replace(/[^a-zøæå0-9]/ig, '') || userId
   localStorage.setItem('username', userId)
 
-  email = prompt('Email eller mobil: (Noe vi kan kontakte deg via)') || ''
+  email = prompt('Email eller mobil: (Noe vi kan kontakte deg via)') || email
   localStorage.setItem('email', email)
 
   document.querySelector('.change-name').innerHTML = `Kallenavn: ${userId} (Trykk for å endre)`
