@@ -4,25 +4,40 @@ const pin = '123'
 let userId = ''
 let email = ''
 
-try {
-  if (localStorage.getItem('username')) {
-    userId = localStorage.getItem('username')
-  } else {
+function register () {
+  try {
+    if (localStorage.getItem('username')) {
+      userId = localStorage.getItem('username')
+    } else {
+      userId = prompt('Kallenavn:') || 'Anonym' + Math.round(Math.random() * 1000)
+      userId = userId.replace(/[^a-zøæå0-9]/ig, '') || 'Anonym' + Math.round(Math.random() * 1000)
+      localStorage.setItem('username', userId)
+    }
+    if (localStorage.getItem('email')) {
+      email = localStorage.getItem('email')
+    } else {
+      email = prompt('Email eller mobil: (Noe vi kan kontakte deg via)') || ''
+      localStorage.setItem('email', email)
+    }
+  } catch (ex) {
     userId = prompt('Kallenavn:') || 'Anonym' + Math.round(Math.random() * 1000)
     userId = userId.replace(/[^a-zøæå0-9]/ig, '') || 'Anonym' + Math.round(Math.random() * 1000)
-    localStorage.setItem('username', userId)
-  }
-  if (localStorage.getItem('email')) {
-    email = localStorage.getItem('email')
-  } else {
     email = prompt('Email eller mobil: (Noe vi kan kontakte deg via)') || ''
-    localStorage.setItem('email', email)
   }
-} catch (ex) {
+}
+
+register()
+document.querySelector('.change-name').innerHTML = `Kallenavn: ${userId} (Trykk for å endre)`
+document.querySelector('.change-name').addEventListener('click', () => {
   userId = prompt('Kallenavn:') || 'Anonym' + Math.round(Math.random() * 1000)
   userId = userId.replace(/[^a-zøæå0-9]/ig, '') || 'Anonym' + Math.round(Math.random() * 1000)
+  localStorage.setItem('username', userId)
+
   email = prompt('Email eller mobil: (Noe vi kan kontakte deg via)') || ''
-}
+  localStorage.setItem('email', email)
+
+  document.querySelector('.change-name').innerHTML = `Kallenavn: ${userId} (Trykk for å endre)`
+})
 
 let state = null
 let progress
@@ -42,20 +57,16 @@ if (dir.length) dir = '/' + dir
 let port = ':' + (process.env.PUBLIC_PORT || process.env.PORT)
 if (process.env.PUBLIC_PORT === 80 || process.env.PUBLIC_PORT === 443) port = ''
 let ws = new WebSocket(`${protocol}://${host}${port}${dir}/${pin}/${userId}`)
-ws.addEventListener('message', (evt) => {
+
+let onMessage = (evt) => {
   let data = JSON.parse(evt.data)
+  reconnect = false
 
   switch (data.type) {
     case 'exists':
     if (!data.exists)
       email = prompt('Fyll inn din mail eller ditt mobilnummer så vi kan kontakte deg:')
     ws.send(JSON.stringify({ type: 'email', email }))
-    break
-
-    case 'track':
-    // setState({
-    //   track: data.track.map(e => e.split(':').map(f => parseInt(f)))
-    // })
     break
 
     case 'update':
@@ -70,7 +81,33 @@ ws.addEventListener('message', (evt) => {
     }
     break
   }
-})
+}
+ws.addEventListener('message', onMessage)
+
+let reconnect = false
+let interval = null
+let onClose = (evt) => {
+  reconnect = true
+  interval = setInterval(() => {
+    if (reconnect) {
+      ws.removeEventListener('message', onMessage)
+      ws.removeEventListener('close', onClose)
+      ws.removeEventListener('open', onOpen)
+      ws = new WebSocket(`${protocol}://${host}${port}${dir}/${pin}/${userId}`)
+      ws.addEventListener('message', onMessage)
+      ws.addEventListener('close', onClose)
+      ws.addEventListener('open', onOpen)
+    } else {
+      clearInterval(interval)
+    }
+  }, 1000)
+}
+ws.addEventListener('close', onClose)
+
+let onOpen = (evt) => {
+  reconnect = false
+}
+ws.addEventListener('open', onOpen)
 
 let canvas = document.getElementById('canvas')
 let cw = canvas.width
@@ -83,8 +120,12 @@ function loop (currentTime) {
   if (!startTime) startTime = currentTime
   progress = currentTime - startTime
 
-  if (state.menu) menu(progress)
-  else game(progress)
+  if (reconnect) {
+    connecting(progress)
+  } else {
+    if (state.menu) menu(progress)
+    else game(progress)
+  }
 
   animationFrame = window.requestAnimationFrame(loop)
 }
@@ -134,6 +175,23 @@ function menu (progress) {
   ctx.fillText(state.player.getScore(), cw / 2, ch / 2 + 100)
 
   state.player.y = ch / 2 + Math.cos(progress / 100) * 10
+  drawPlayer(ctx, state.player)
+}
+
+function connecting (progress) {
+  ctx.fillStyle = '#800'
+  ctx.fillRect(0, 0, cw, ch)
+
+  ctx.textAlign = 'center'
+  ctx.font = '30px Helvetica'
+  ctx.fillStyle = '#fff'
+  ctx.fillText('Beklager, men mistet kobling til serveren.', cw / 2, 100)
+  ctx.fillText('Prøver å koble til...', cw / 2, 160)
+
+  ctx.font = '250px Helvetica'
+  ctx.fillStyle = '#600'
+  ctx.fillText(state.player.getScore(), cw / 2, ch / 2 + 100)
+
   drawPlayer(ctx, state.player)
 }
 
