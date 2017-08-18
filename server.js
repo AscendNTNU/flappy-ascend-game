@@ -82,12 +82,16 @@ wss.on('connection', function (ws, req) {
 
   if (/^viewer\d+/.test(params.userId)) {
     console.log('Someone is watching on pin ' + params.pin)
-    ws.send(JSON.stringify({
-      type: 'viewer',
-      count: ++state.viewerCount,
-      players: state.users,
-      highScore: state.highScore
-    }))
+    rc.hgetall('highscore', function (err, reply) {
+      if (err) console.log(err)
+      state.highScore = reply
+      ws.send(JSON.stringify({
+        type: 'viewer',
+        count: ++state.viewerCount,
+        players: state.users,
+        highScore: state.highScore
+      }))
+    })
     state.viewerWS[params.userId] = ws
 
     ws.isAlive = true
