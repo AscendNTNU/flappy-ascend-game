@@ -139,14 +139,14 @@ function update (progress) {
   if (state.track.length) {
     ctx.fillStyle = '#777'
     let w = 40
-    let h = 140
+    let h = 150
     let del = false
     ctx.beginPath()
     for (let piece of state.track) {
       piece[1] -= 3
       let x = piece[1] + cw
       if (x < -w - 20) del = true
-      let y = piece[0] / 100 * (ch - h * 4) + h * 1.5
+      let y = piece[0] / 100 * (ch - h * 3) + h * 1
 
       ctx.drawImage(
         groundRobotImage, x - groundRobotImage.width / 2 + w / 2,

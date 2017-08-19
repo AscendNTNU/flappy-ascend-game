@@ -250,7 +250,7 @@ function game (progress) {
 
   if (state.track.length) {
     let w = 40
-    let h = 140
+    let h = 150
     let del = false
     let passedBlock = false
     ctx.beginPath()
@@ -258,7 +258,7 @@ function game (progress) {
       piece[1] -= 3
       let x = piece[1] + cw
       if (x < -w - 20) del = true
-      let y = piece[0] / 100 * (ch - h * 4) + h * 1.5
+      let y = piece[0] / 100 * (ch - h * 3) + h * 1
 
       if (player.x + player.w > x && player.x < x + w) {
         if (!state.passingBlock) {
