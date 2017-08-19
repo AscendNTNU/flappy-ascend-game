@@ -107,7 +107,7 @@ wss.on('connection', function (ws, req) {
   } else {
     console.log(params.userId + ' connected to pin ' + params.pin)
     state.users[params.userId] = {
-      email: '',
+      email: params.email,
       score: 0,
       x: 0,
       y: 0,
@@ -128,17 +128,20 @@ wss.on('connection', function (ws, req) {
     rc.hgetall(userHash(params.pin, params.userId), function (err, reply) {
       if (err) console.log(err)
       var userExist = !!reply
-      if (!userExist) state.users[params.userId].timeCreated = Date.now()
-      Object.assign(state.users[params.userId], reply, {
-        timeModified: Date.now()
-      })
-      rc.hmset(userHash(params.pin, params.userId), state.users[params.userId], function (err, reply) {
+      if (!userExist) {
+        state.users[params.userId].timeCreated = Date.now()
+        Object.assign(state.users[params.userId], reply, {
+          timeModified: Date.now()
+        })
+        rc.hmset(userHash(params.pin, params.userId), state.users[params.userId])
+      } else {
+        console.log(reply.email, params.email)
         ws.send(JSON.stringify({
-          type: 'exist',
-          exists: userExist,
-          email: reply.email || ''
+          type: 'exists',
+          exists: true,
+          verified: reply.email === params.email
         }))
-      })
+      }
     })
 
     ws.on('message', function (rawData) {
@@ -235,6 +238,7 @@ function getParams (url) {
   return {
     pin: parsed[0],
     userId: parsed[1],
+    email: parsed[2] || '',
   }
 }
 

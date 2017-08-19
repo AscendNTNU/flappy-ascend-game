@@ -4,7 +4,7 @@ const pin = '123'
 let userId = ''
 let email = ''
 
-function register () {
+function register (taken = false) {
   try {
     if (localStorage.getItem('username')) {
       userId = localStorage.getItem('username')
@@ -16,28 +16,44 @@ function register () {
     if (localStorage.getItem('email')) {
       email = localStorage.getItem('email')
     } else {
-      email = prompt('Email eller mobil: (Noe vi kan kontakte deg via)') || ''
+      email = prompt('Email eller mobil: (Noe vi kan kontakte deg via)')
+      email = email.replace(/[^a-zøæå0-9\.@]/ig, '')
       localStorage.setItem('email', email)
     }
   } catch (ex) {
     userId = prompt('Kallenavn:') || 'Anonym' + Math.round(Math.random() * 1000)
     userId = userId.replace(/[^a-zøæå0-9]/ig, '') || 'Anonym' + Math.round(Math.random() * 1000)
-    email = prompt('Email eller mobil: (Noe vi kan kontakte deg via)') || ''
+    email = prompt('Email eller mobil: (Noe vi kan kontakte deg via)')
+  }
+}
+
+let changeName = () => {
+  let prevUserId = userId
+  userId = prompt('Kallenavn:') || userId
+  userId = userId.replace(/[^a-zøæå0-9]/ig, '') || userId
+  localStorage.setItem('username', userId)
+  
+  email = prompt('Email eller mobil: (Noe vi kan kontakte deg via)') || email
+  email = email.replace(/[^a-zøæå0-9\.@]/ig, '')
+  localStorage.setItem('email', email)
+
+  document.querySelector('.change-name').innerHTML = `Kallenavn: ${userId} (Trykk for å endre)`
+
+  if (prevUserId !== userId) {
+    ws.removeEventListener('message', onMessage)
+    ws.removeEventListener('close', onClose)
+    ws.removeEventListener('open', onOpen)
+    ws.close()
+    ws = new WebSocket(`${protocol}://${host}${port}${dir}/${pin}/${userId}/${email}`)
+    ws.addEventListener('message', onMessage)
+    ws.addEventListener('close', onClose)
+    ws.addEventListener('open', onOpen)
   }
 }
 
 register()
 document.querySelector('.change-name').innerHTML = `Kallenavn: ${userId} (Trykk for å endre)`
-document.querySelector('.change-name').addEventListener('click', () => {
-  userId = prompt('Kallenavn:') || userId
-  userId = userId.replace(/[^a-zøæå0-9]/ig, '') || userId
-  localStorage.setItem('username', userId)
-
-  email = prompt('Email eller mobil: (Noe vi kan kontakte deg via)') || email
-  localStorage.setItem('email', email)
-
-  document.querySelector('.change-name').innerHTML = `Kallenavn: ${userId} (Trykk for å endre)`
-})
+document.querySelector('.change-name').addEventListener('click', changeName)
 
 let state = null
 let progress
@@ -56,7 +72,7 @@ let dir = (process.env.DIR || '')
 if (dir.length) dir = '/' + dir
 let port = ':' + (process.env.PUBLIC_PORT || process.env.PORT)
 if (process.env.PUBLIC_PORT === 80 || process.env.PUBLIC_PORT === 443) port = ''
-let ws = new WebSocket(`${protocol}://${host}${port}${dir}/${pin}/${userId}`)
+let ws = new WebSocket(`${protocol}://${host}${port}${dir}/${pin}/${userId}/${email}`)
 
 let onMessage = (evt) => {
   let data = JSON.parse(evt.data)
@@ -64,9 +80,10 @@ let onMessage = (evt) => {
 
   switch (data.type) {
     case 'exists':
-    if (!data.exists)
-      email = prompt('Fyll inn din mail eller ditt mobilnummer så vi kan kontakte deg:')
-    ws.send(JSON.stringify({ type: 'email', email }))
+    if (data.exists && !data.verified) {
+      alert('Kallenavnet er tatt! (Du må også skrive riktig mail/tlf)')
+      changeName()
+    }
     break
 
     case 'update':
@@ -93,7 +110,7 @@ let onClose = (evt) => {
       ws.removeEventListener('message', onMessage)
       ws.removeEventListener('close', onClose)
       ws.removeEventListener('open', onOpen)
-      ws = new WebSocket(`${protocol}://${host}${port}${dir}/${pin}/${userId}`)
+      ws = new WebSocket(`${protocol}://${host}${port}${dir}/${pin}/${userId}/${email}`)
       ws.addEventListener('message', onMessage)
       ws.addEventListener('close', onClose)
       ws.addEventListener('open', onOpen)
