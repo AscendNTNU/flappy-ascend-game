@@ -139,7 +139,7 @@ function update (progress) {
   if (state.track.length) {
     ctx.fillStyle = '#777'
     let w = 40
-    let h = 120
+    let h = 140
     let del = false
     ctx.beginPath()
     for (let piece of state.track) {

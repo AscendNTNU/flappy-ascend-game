@@ -250,7 +250,7 @@ function game (progress) {
 
   if (state.track.length) {
     let w = 40
-    let h = 120
+    let h = 140
     let del = false
     let passedBlock = false
     ctx.beginPath()
