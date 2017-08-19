@@ -116,6 +116,13 @@ wss.on('connection', function (ws, req) {
     state.userWS[params.userId] = ws
     state.userCount++
 
+    rc.hget('highscore', userHash(params.pin, params.userId), function (err, reply) {
+      ws.send(JSON.stringify({
+        type: 'highscore',
+        highScore: reply || 0
+      }))
+    })
+
     var data = JSON.stringify({
       type: 'player',
       id: params.userId,
@@ -208,7 +215,7 @@ wss.on('connection', function (ws, req) {
         }
       }
     })
-    
+
     // Removing user from game, but may his spirit live forever in Redis
     ws.on('close', function () {
       console.log(params.userId + ' quit the game on pin ' + params.pin)

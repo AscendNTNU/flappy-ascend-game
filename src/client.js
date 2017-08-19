@@ -86,6 +86,14 @@ let onMessage = (evt) => {
     }
     break
 
+    case 'highscore':
+    state.highScore = data.highScore
+    console.log("funker", data.highScore)
+    try {
+      localStorage.setItem('highscore', data.highScore)
+    } catch (ex) {}
+    break
+
     case 'update':
     if (!state.menu) {
       data.track[1] = 0
@@ -188,6 +196,8 @@ function menu (progress) {
   ctx.fillStyle = '#999'
   ctx.fillText('Trykk for å starte', cw / 2, 100)
 
+  ctx.fillText(`Highscore: ${state.highScore || 0}`, cw / 2, ch - 50)
+
   ctx.font = '250px Helvetica'
   ctx.fillStyle = '#036'
   ctx.fillText(state.player.getScore(), cw / 2, ch / 2 + 100)
@@ -230,7 +240,12 @@ function game (progress) {
   }
 
   ctx.fillStyle = '#036'
+  ctx.font = '250px Helvetica'
   ctx.fillText(player.getScore(), cw / 2, ch / 2 + 100)
+
+  ctx.font = '40px Helvetica'
+  ctx.fillStyle = '#999'
+  ctx.fillText(`Highscore: ${state.highScore || 0}`, cw / 2, ch - 50)
 
   drawPlayer(ctx, player)
 
@@ -356,6 +371,12 @@ function updateServerJump () {
 }
 
 function updateServerScore () {
+  if (state.highScore < state.player.getScore()) {
+    state.highScore = state.player.getScore()
+    try {
+    localStorage.setItem('highscore', state.highScore)
+    } catch (ex) {}
+  }
   ws.send(JSON.stringify({
     type: 'score',
     id: userId,
