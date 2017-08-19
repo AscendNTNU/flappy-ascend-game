@@ -277,9 +277,12 @@ function drawPlayer (ctx, player) {
   // ctx.lineTo(playerPos.x, playerPos.y + player.h)
   // ctx.fill()
 
+  let w = 360 * player.w / playerImage.width
+  let h = 360 * 56 / 100 * player.h / playerImage.height
   ctx.drawImage(playerImage,
-    playerPos.x - playerImage.width / 2 + player.w / 2,
-    playerPos.y - playerImage.height / 2 + player.h / 2
+    playerPos.x - w / 2 + player.w / 2,
+    playerPos.y - h / 1.8 + player.h / 2,
+    w, h
   )
 }
 
