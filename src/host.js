@@ -33,13 +33,14 @@ ws.addEventListener('message', (evt) => {
     break
 
     case 'update':
+    data.track[1] = 0
     state.track.push(data.track)
     setState()
     startTime = 0
     if (!syncedStartTime) {
       syncedStartTime = true
     }
-    state.timeOffset = Math.round(progress / process.env.INTERVAL) * process.env.INTERVAL
+    // state.timeOffset = Math.round(progress / process.env.INTERVAL) * process.env.INTERVAL
     break
 
     case 'viewer':
