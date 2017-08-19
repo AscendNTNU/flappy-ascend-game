@@ -135,7 +135,6 @@ wss.on('connection', function (ws, req) {
         })
         rc.hmset(userHash(params.pin, params.userId), state.users[params.userId])
       } else {
-        console.log(reply.email, params.email)
         ws.send(JSON.stringify({
           type: 'exists',
           exists: true,
