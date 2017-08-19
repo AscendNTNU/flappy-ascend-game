@@ -88,7 +88,6 @@ let onMessage = (evt) => {
 
     case 'highscore':
     state.highScore = data.highScore
-    console.log("funker", data.highScore)
     try {
       localStorage.setItem('highscore', data.highScore)
     } catch (ex) {}
