@@ -154,26 +154,32 @@ wss.on('connection', function (ws, req) {
             })
             break
           case 'jump':
-            state.users[params.userId].dead = false
-            state.users[params.userId].x = data.player.x
-            state.users[params.userId].y = data.player.y
-            state.users[params.userId].v = data.player.v
+            if (state.users[params.userId]) {
+              state.users[params.userId].dead = false
+              state.users[params.userId].x = data.player.x
+              state.users[params.userId].y = data.player.y
+              state.users[params.userId].v = data.player.v
+            }
             for (var viewerId in state.viewerWS) {
               state.viewerWS[viewerId].send(rawData)
             }
             break
           case 'pos':
-            state.users[params.userId].dead = false
-            state.users[params.userId].x = data.player.x
-            state.users[params.userId].y = data.player.y
-            state.users[params.userId].v = data.player.v
+            if (state.users[params.userId]) {
+              state.users[params.userId].dead = false
+              state.users[params.userId].x = data.player.x
+              state.users[params.userId].y = data.player.y
+              state.users[params.userId].v = data.player.v
+            }
             for (var viewerId in state.viewerWS) {
               state.viewerWS[viewerId].send(rawData)
             }
             break
           case 'score':
-            state.users[params.userId].dead = false
-            state.users[params.userId].score = data.score
+            if (state.users[params.userId]) {
+              state.users[params.userId].dead = false
+              state.users[params.userId].score = data.score
+            }
             for (var viewerId in state.viewerWS) {
               state.viewerWS[viewerId].send(rawData)
             }

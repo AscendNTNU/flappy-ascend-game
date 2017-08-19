@@ -88,6 +88,7 @@ let onMessage = (evt) => {
 
     case 'update':
     if (!state.menu) {
+      data.track[1] = 0
       state.track.push(data.track)
       setState()
       startTime = 0
@@ -235,14 +236,14 @@ function game (progress) {
 
   if (state.track.length) {
     let w = 40
-    let d = 280
     let h = 120
-    let offset = state.track[state.track.length - 1][1]
-    let offsetX = cw - w * 2 - (progress - state.timeOffset) / (process.env.INTERVAL / d)
+    let del = false
     let passedBlock = false
     ctx.beginPath()
-    for (let piece of state.track.slice(-cw / d - 2)) {
-      let x = (piece[1] - offset) * d + offsetX
+    for (let piece of state.track) {
+      piece[1] -= 3
+      let x = piece[1] + cw
+      if (x < -w - 20) del = true
       let y = piece[0] / 100 * (ch - h * 4) + h * 1.5
 
       if (player.x + player.w > x && player.x < x + w) {
@@ -272,6 +273,7 @@ function game (progress) {
     }
     ctx.fillStyle = '#999'
     ctx.fill()
+    if (del) state.track.shift()
 
     if (!passedBlock && state.passingBlock) {
       player.addScore()

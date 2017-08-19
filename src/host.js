@@ -5,6 +5,7 @@ let state = null
 let progress
 let syncedStartTime = false
 let animationFrame = null
+let globalPos = 0
 let playerImage = new Image()
 playerImage.src = 'drone-mini.png'
 let groundRobotImage = new Image()
@@ -25,9 +26,10 @@ ws.addEventListener('message', (evt) => {
 
   switch (data.type) {
     case 'track':
-    setState({
-      track: data.track.map(e => e.split(':').map(f => parseInt(f)))
-    })
+    // setState({
+    //   track: data.track.map(e => e.split(':').map(f => parseInt(f)))
+    // })
+    globalPos = state.track[0][1]
     break
 
     case 'update':
@@ -136,15 +138,15 @@ function update (progress) {
   if (state.track.length) {
     ctx.fillStyle = '#777'
     let w = 40
-    let d = 280
     let h = 120
-    let offset = state.track[state.track.length - 1][1]
-    let offsetX = cw - w * 2 - (progress - state.timeOffset) / (process.env.INTERVAL / d)
+    let del = false
     ctx.beginPath()
-    for (let piece of state.track.slice(-cw / d - 2)) {
-      let x = (piece[1] - offset) * d + offsetX
+    for (let piece of state.track) {
+      piece[1] -= 3
+      let x = piece[1] + cw
+      if (x < -w - 20) del = true
       let y = piece[0] / 100 * (ch - h * 4) + h * 1.5
-      
+
       ctx.drawImage(
         groundRobotImage, x - groundRobotImage.width / 2 + w / 2,
         ch - groundRobotImage.height
@@ -161,6 +163,7 @@ function update (progress) {
       ctx.lineTo(x, ch - 33)
     }
     ctx.fill()
+    if (del) state.track.shift()
   }
   
   ctx.fillStyle = '#f80'
