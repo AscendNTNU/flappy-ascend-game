@@ -107,8 +107,12 @@ body {
   border: none;
   background-color: transparent;
   text-decoration: none;
-  font-size: 2em;
+  font-size: 1.6em;
   box-shadow: none;
+}
+
+.change-name:hover {
+  background-color: transparent;
 }
 
 .change-name:empty {
