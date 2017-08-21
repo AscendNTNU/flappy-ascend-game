@@ -235,7 +235,7 @@ function updateList () {
   let prevScore = 0
   for (let user of list) {
     if (user.score !== prevScore) i++
-    str += `<div data-index="${i}">${i}. ${user.userName}: ${user.score}</div>`
+    str += `<div data-index="${i}">${i}. ${decodeURI(user.userName)}: ${user.score}</div>`
     prevScore = user.score
   }
 
