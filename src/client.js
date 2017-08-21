@@ -166,6 +166,13 @@ function init () {
     track: [],
   }
 
+  canvas.addEventListener('keydown', (evt) => {
+    if (evt.keyCode === 32) {
+      state.player.jump()
+      updateServerJump()
+    }
+  })
+
   canvas.addEventListener('touchstart', (evt) => {
     state.player.jump()
     updateServerJump()
