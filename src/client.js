@@ -166,10 +166,13 @@ function init () {
     track: [],
   }
 
-  canvas.addEventListener('keydown', (evt) => {
+  window.addEventListener('keydown', (evt) => {
     if (evt.keyCode === 32) {
+      console.log("nice")
       state.player.jump()
       updateServerJump()
+
+      if (state.menu) state.menu = false
     }
   })
 
