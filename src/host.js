@@ -167,12 +167,12 @@ function update (progress) {
     if (del) state.track.shift()
   }
   
-  ctx.fillStyle = '#f80'
   ctx.beginPath()
   for (let playerId in state.players) {
     let player = state.players[playerId]
     player.update()
-
+    
+    ctx.fillStyle = '#f80'
     drawPlayer(ctx, player)
 
     if (player.y > ch) {
@@ -189,7 +189,7 @@ function drawPlayer (ctx, player) {
     y: (player.y + .5) | 0
   }
 
-  if (player.score >= 10) ctx.fillStyle = '#aaa'
+  if (player.score >= 10 && player.score < 20) ctx.fillStyle = '#aaa'
   else if (player.score >= 20) ctx.fillStyle = '#ff0'
 
   // ctx.beginPath()
