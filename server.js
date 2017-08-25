@@ -200,7 +200,7 @@ wss.on('connection', function (ws, req) {
               state.viewerWS[viewerId].send(rawData)
             }
             rc.hget('highscore', userHash(params.pin, params.userId), function (err, reply) {
-              var validHash = data.hash === gh(data.score + params.userId)
+              var validHash = data.hash === gh(data.score + decodeURI(params.userId))
               var validScore = data.score === parseInt(reply) + 1 || reply === null
               if (validScore && validHash && hasJumped) {
                 console.log(params.userId + ' set new highscore to ' + data.score + '!')
