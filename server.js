@@ -108,6 +108,7 @@ wss.on('connection', function (ws, req) {
     console.log(params.userId + ' connected to pin ' + params.pin)
     state.users[params.userId] = {
       email: params.email,
+      jumped: false,
       score: 0,
       x: 0,
       y: 0,
@@ -161,28 +162,36 @@ wss.on('connection', function (ws, req) {
             })
             break
           case 'jump':
-            if (state.users[params.userId]) {
-              state.users[params.userId].dead = false
-              state.users[params.userId].x = data.player.x
-              state.users[params.userId].y = data.player.y
-              state.users[params.userId].v = data.player.v
-            }
-            for (var viewerId in state.viewerWS) {
-              state.viewerWS[viewerId].send(rawData)
+            if (data.player && data.player.x && data.player.y && data.player.v) {
+              if (state.users[params.userId]) {
+                state.users[params.userId].dead = false
+                state.users[params.userId].x = data.player.x
+                state.users[params.userId].y = data.player.y
+                state.users[params.userId].v = data.player.v
+                state.users[params.userId].jumped = true
+              }
+              for (var viewerId in state.viewerWS) {
+                state.viewerWS[viewerId].send(rawData)
+              }
             }
             break
           case 'pos':
-            if (state.users[params.userId]) {
-              state.users[params.userId].dead = false
-              state.users[params.userId].x = data.player.x
-              state.users[params.userId].y = data.player.y
-              state.users[params.userId].v = data.player.v
-            }
-            for (var viewerId in state.viewerWS) {
-              state.viewerWS[viewerId].send(rawData)
+            if (data.player && data.player.x && data.player.y && data.player.v) {
+              if (state.users[params.userId]) {
+                state.users[params.userId].dead = false
+                state.users[params.userId].x = data.player.x
+                state.users[params.userId].y = data.player.y
+                state.users[params.userId].v = data.player.v
+              }
+              for (var viewerId in state.viewerWS) {
+                state.viewerWS[viewerId].send(rawData)
+              }
             }
             break
           case 'score':
+            var hasJumped = state.users[params.userId].jumped && !state.users[params.userId].dead
+            state.users[params.userId].jumped = false
+            if (!data.score || !data.hash) break
             if (state.users[params.userId]) {
               state.users[params.userId].dead = false
               state.users[params.userId].score = data.score
@@ -191,7 +200,9 @@ wss.on('connection', function (ws, req) {
               state.viewerWS[viewerId].send(rawData)
             }
             rc.hget('highscore', userHash(params.pin, params.userId), function (err, reply) {
-              if (data.score > reply) {
+              var validHash = data.hash === gh(data.score + params.userId)
+              var validScore = data.score === parseInt(reply) + 1 || reply === null
+              if (validScore && validHash && hasJumped) {
                 console.log(params.userId + ' set new highscore to ' + data.score + '!')
                 rc.hmset('highscore', userHash(params.pin, params.userId), data.score)
                 state.highScore[userHash(params.pin, params.userId)] = data.score
@@ -262,6 +273,22 @@ function getParams (url) {
  */
 function userHash (pin, userId) {
   return 'pin:' + pin + ':user:' + userId
+}
+
+/**
+ * A function to hash values. Just making it harder to accept values from user.
+ * 
+ * @param {string} val To hash
+ */
+function gh (val) {
+  var hash = 0
+  if (val.length == 0) return hash
+  for (var i = 0; i < val.length; i++) {
+    var char = val.charCodeAt(i)
+    hash = ((hash << 5) - hash) + char
+    hash = hash & hash
+  }
+  return hash
 }
 
 /**

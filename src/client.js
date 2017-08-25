@@ -347,6 +347,7 @@ function reset () {
       type: 'score',
       id: userId,
       score,
+      hash: gh(state.player.getScore() + userId),
     }))
   }
 }
@@ -390,6 +391,7 @@ function updateServerScore () {
     type: 'score',
     id: userId,
     score: state.player.getScore(),
+    hash: gh(state.player.getScore() + userId),
   }))
 }
 
@@ -398,6 +400,17 @@ function updateServerDie () {
     type: 'die',
     id: userId,
   }))
+}
+
+function gh (val) {
+  let hash = 0
+  if (val.length == 0) return hash
+  for (let i = 0; i < val.length; i++) {
+    let char = val.charCodeAt(i)
+    hash = ((hash << 5) - hash) + char
+    hash = hash & hash
+  }
+  return hash
 }
 
 function setState (data) {
