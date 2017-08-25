@@ -168,7 +168,6 @@ function init () {
 
   window.addEventListener('keydown', (evt) => {
     if (evt.keyCode === 32) {
-      console.log("nice")
       state.player.jump()
       updateServerJump()
 
