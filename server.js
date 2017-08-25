@@ -152,79 +152,81 @@ wss.on('connection', function (ws, req) {
     })
 
     ws.on('message', function (rawData) {
-      data = JSON.parse(rawData)
-      if (data.hasOwnProperty('type')) {
-        switch (data.type) {
-          case 'init': console.log(data.message); break
-          case 'email':
-            setUserProp(rc, params.pin, params.userId, {
-              email: data.email
-            })
-            break
-          case 'jump':
-            if (data.player && data.player.x && data.player.y && data.player.v) {
-              if (state.users[params.userId]) {
-                state.users[params.userId].dead = false
-                state.users[params.userId].x = data.player.x
-                state.users[params.userId].y = data.player.y
-                state.users[params.userId].v = data.player.v
-                state.users[params.userId].jumped = true
-              }
-              for (var viewerId in state.viewerWS) {
-                state.viewerWS[viewerId].send(rawData)
-              }
-            }
-            break
-          case 'pos':
-            if (data.player && data.player.x && data.player.y && data.player.v) {
-              if (state.users[params.userId]) {
-                state.users[params.userId].dead = false
-                state.users[params.userId].x = data.player.x
-                state.users[params.userId].y = data.player.y
-                state.users[params.userId].v = data.player.v
-              }
-              for (var viewerId in state.viewerWS) {
-                state.viewerWS[viewerId].send(rawData)
-              }
-            }
-            break
-          case 'score':
-            var hasJumped = state.users[params.userId].jumped && !state.users[params.userId].dead
-            state.users[params.userId].jumped = false
-            if (!data.score || !data.hash) break
-            if (state.users[params.userId]) {
-              state.users[params.userId].dead = false
-              state.users[params.userId].score = data.score
-            }
-            for (var viewerId in state.viewerWS) {
-              state.viewerWS[viewerId].send(rawData)
-            }
-            rc.hget('highscore', userHash(params.pin, params.userId), function (err, reply) {
-              var validHash = data.hash === gh(data.score + decodeURI(params.userId))
-              var validScore = data.score === parseInt(reply) + 1 || reply === null
-              if (validScore && validHash && hasJumped) {
-                console.log(params.userId + ' set new highscore to ' + data.score + '!')
-                rc.hmset('highscore', userHash(params.pin, params.userId), data.score)
-                state.highScore[userHash(params.pin, params.userId)] = data.score
-                var newData = JSON.stringify({
-                  type: 'highscore',
-                  id: params.userId,
-                  score: data.score
-                })
+      try {
+        data = JSON.parse(rawData)
+        if (data.hasOwnProperty('type')) {
+          switch (data.type) {
+            case 'init': console.log(data.message); break
+            case 'email':
+              setUserProp(rc, params.pin, params.userId, {
+                email: data.email
+              })
+              break
+            case 'jump':
+              if (data.player && data.player.x && data.player.y && data.player.v) {
+                if (state.users[params.userId]) {
+                  state.users[params.userId].dead = false
+                  state.users[params.userId].x = data.player.x
+                  state.users[params.userId].y = data.player.y
+                  state.users[params.userId].v = data.player.v
+                  state.users[params.userId].jumped = true
+                }
                 for (var viewerId in state.viewerWS) {
-                  state.viewerWS[viewerId].send(newData)
+                  state.viewerWS[viewerId].send(rawData)
                 }
               }
-            })
-            break
-          case 'die':
-            state.users[params.userId].dead = true
-            for (var viewerId in state.viewerWS) {
-              state.viewerWS[viewerId].send(rawData)
-            }
-            break
+              break
+            case 'pos':
+              if (data.player && data.player.x && data.player.y && data.player.v) {
+                if (state.users[params.userId]) {
+                  state.users[params.userId].dead = false
+                  state.users[params.userId].x = data.player.x
+                  state.users[params.userId].y = data.player.y
+                  state.users[params.userId].v = data.player.v
+                }
+                for (var viewerId in state.viewerWS) {
+                  state.viewerWS[viewerId].send(rawData)
+                }
+              }
+              break
+            case 'score':
+              var hasJumped = state.users[params.userId].jumped && !state.users[params.userId].dead
+              state.users[params.userId].jumped = false
+              if (!data.score || !data.hash) break
+              if (state.users[params.userId]) {
+                state.users[params.userId].dead = false
+                state.users[params.userId].score = data.score
+              }
+              for (var viewerId in state.viewerWS) {
+                state.viewerWS[viewerId].send(rawData)
+              }
+              rc.hget('highscore', userHash(params.pin, params.userId), function (err, reply) {
+                var validHash = data.hash === gh(data.score + decodeURI(params.userId))
+                var validScore = data.score === parseInt(reply) + 1 || reply === null
+                if (validScore && validHash && hasJumped) {
+                  console.log(params.userId + ' set new highscore to ' + data.score + '!')
+                  rc.hmset('highscore', userHash(params.pin, params.userId), data.score)
+                  state.highScore[userHash(params.pin, params.userId)] = data.score
+                  var newData = JSON.stringify({
+                    type: 'highscore',
+                    id: params.userId,
+                    score: data.score
+                  })
+                  for (var viewerId in state.viewerWS) {
+                    state.viewerWS[viewerId].send(newData)
+                  }
+                }
+              })
+              break
+            case 'die':
+              state.users[params.userId].dead = true
+              for (var viewerId in state.viewerWS) {
+                state.viewerWS[viewerId].send(rawData)
+              }
+              break
+          }
         }
-      }
+      } catch (ex) {}
     })
 
     // Removing user from game, but may his spirit live forever in Redis
@@ -314,17 +316,21 @@ setInterval(() => {
   state.track.push(piece)
   rc.rpush('track', piece[0])
 
-  if (state.userCount) {
+  if (state.userCount || state.viewerCount) {
     // Some function adding more obstacles and returning them to active users
     var data = JSON.stringify({
       type: 'update',
       track: piece
     })
+  }
 
+  if (state.userCount) {
     for (var userId in state.userWS) {
       state.userWS[userId].send(data)
     }
+  }
 
+  if (state.viewerCount) {
     for (var viewerId in state.viewerWS) {
       state.viewerWS[viewerId].send(data)
     }
