@@ -202,7 +202,7 @@ wss.on('connection', function (ws, req) {
               }
               rc.hget('highscore', userHash(params.pin, params.userId), function (err, reply) {
                 var validHash = data.hash === gh(data.score + decodeURI(params.userId))
-                var validScore = data.score === parseInt(reply) + 1 || reply === null
+                var validScore = data.score === parseInt(reply) + 1 || data.score === parseInt(reply) + 2 || reply === null
                 if (validScore && validHash && hasJumped) {
                   console.log(params.userId + ' set new highscore to ' + data.score + '!')
                   rc.hmset('highscore', userHash(params.pin, params.userId), data.score)
