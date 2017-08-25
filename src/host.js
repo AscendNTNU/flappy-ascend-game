@@ -174,8 +174,10 @@ function update (progress) {
     let player = state.players[playerId]
     player.update()
     
-    ctx.fillStyle = '#f80'
-    drawPlayer(ctx, player)
+    if (player.x > 0) {
+      ctx.fillStyle = '#f80'
+      drawPlayer(ctx, player)
+    }
 
     if (player.y > ch) {
       reset(player)
