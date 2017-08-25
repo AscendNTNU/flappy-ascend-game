@@ -57,6 +57,7 @@ document.querySelector('.change-name').addEventListener('click', changeName)
 
 let state = null
 let progress
+let deltaTime = 1
 let syncedStartTime = false
 let animationFrame = null
 let uploadWait = 100
@@ -143,6 +144,7 @@ let ctx = canvas.getContext('2d')
 let startTime = 0
 function loop (currentTime) {
   if (!startTime) startTime = currentTime
+  deltaTime = (currentTime - startTime) - progress
   progress = currentTime - startTime
 
   if (reconnect) {
@@ -264,7 +266,7 @@ function game (progress) {
     let passedBlock = false
     ctx.beginPath()
     for (let piece of state.track) {
-      piece[1] -= 3
+      piece[1] -= 60 / deltaTime
       let x = piece[1] + cw
       if (x < -w - 20) del = true
       let y = piece[0] / 100 * (ch - h * 3) + h * 1

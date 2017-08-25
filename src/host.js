@@ -3,6 +3,7 @@ import Player from './components/Player'
 const pin = '123'
 let state = null
 let progress
+let deltaTime = 1
 let syncedStartTime = false
 let animationFrame = null
 let globalPos = 0
@@ -109,6 +110,7 @@ let highScoreList = document.querySelector('.list')
 let startTime = 0
 function loop (currentTime) {
   if (!startTime) startTime = currentTime
+  deltaTime = (currentTime - startTime) - progress
   progress = currentTime - startTime
 
   update(progress)
@@ -143,7 +145,7 @@ function update (progress) {
     let del = false
     ctx.beginPath()
     for (let piece of state.track) {
-      piece[1] -= 3
+      piece[1] -= 60 / deltaTime
       let x = piece[1] + cw
       if (x < -w - 20) del = true
       let y = piece[0] / 100 * (ch - h * 3) + h * 1
