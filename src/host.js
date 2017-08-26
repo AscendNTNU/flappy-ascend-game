@@ -37,7 +37,6 @@ ws.addEventListener('message', (evt) => {
     data.track[1] = 0
     state.track.push(data.track)
     setState()
-    startTime = 0
     if (!syncedStartTime) {
       syncedStartTime = true
     }
@@ -145,7 +144,7 @@ function update (progress) {
     let del = false
     ctx.beginPath()
     for (let piece of state.track) {
-      piece[1] -= 60 / deltaTime
+      piece[1] -= .21 * deltaTime
       let x = piece[1] + cw
       if (x < -w - 20) del = true
       let y = piece[0] / 100 * (ch - h * 3) + h * 1
