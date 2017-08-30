@@ -57,6 +57,9 @@ body {
   overflow-y: auto;
   height: 100vh;
   max-height: 100vw;
+  max-width: 50vw;
+  overflow-x: hidden;
+  margin: auto;
 }
 
 .list [data-index="1"] {
