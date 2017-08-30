@@ -57,9 +57,15 @@ body {
   overflow-y: auto;
   height: 100vh;
   max-height: 100vw;
-  max-width: 50vw;
+  max-width: 98vw;
   overflow-x: hidden;
   margin: auto;
+}
+
+@media (min-aspect-ratio: 1111 / 748) {
+  .list {
+    max-width: calc(100vw - 103vh);
+  }
 }
 
 .list [data-index="1"] {
