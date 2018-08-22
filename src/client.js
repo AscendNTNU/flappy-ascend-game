@@ -16,14 +16,16 @@ function register (taken = false) {
     if (localStorage.getItem('email')) {
       email = localStorage.getItem('email')
     } else {
+      const name = prompt('Fullt navn:').replace(/[^a-zøæå ]/ig, '')
       email = prompt('Email eller mobil: (Noe vi kan kontakte deg via)')
-      email = email.replace(/[^a-zøæå0-9\.@]/ig, '')
+      email = email.replace(/[^a-zøæå0-9\.@]/ig, '') + '#' + name
       localStorage.setItem('email', email)
     }
   } catch (ex) {
     userId = prompt('Kallenavn:') || 'Anonym' + Math.round(Math.random() * 1000)
     userId = userId.replace(/[^a-zøæå0-9]/ig, '') || 'Anonym' + Math.round(Math.random() * 1000)
-    email = prompt('Email eller mobil: (Noe vi kan kontakte deg via)')
+    const name = prompt('Fullt navn:').replace(/[^a-zøæå ]/ig, '')
+    email = prompt('Email eller mobil: (Noe vi kan kontakte deg via)') + '#' + name
   }
 }
 
@@ -33,8 +35,9 @@ let changeName = () => {
   userId = userId.replace(/[^a-zøæå0-9]/ig, '') || userId
   localStorage.setItem('username', userId)
   
-  email = prompt('Email eller mobil: (Noe vi kan kontakte deg via)') || email
-  email = email.replace(/[^a-zøæå0-9\.@]/ig, '')
+  const name = prompt('Fullt navn:').replace(/[^a-zøæå ]/ig, '')
+  email = prompt('Email eller mobil: (Noe vi kan kontakte deg via)') || email.split('#')[0]
+  email = email.replace(/[^a-zøæå0-9\.@]/ig, '') + '#' + name
   localStorage.setItem('email', email)
 
   document.querySelector('.change-name').innerHTML = `Kallenavn: ${userId} (Trykk for å endre)`
