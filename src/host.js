@@ -13,6 +13,8 @@ let groundRobotImage = new Image()
 groundRobotImage.src = 'ground-robot-mini.png'
 let ascendImage = new Image()
 ascendImage.src = 'logo-ascend-art-under.png'
+let sponsorImage = new Image()
+sponsorImage.src = 'logo-kongsberg.svg'
 
 let protocol = /s:$/.test(location.protocol) ? 'wss' : 'ws'
 let host = window.document.location.host.replace(/:.*/, '')
@@ -136,6 +138,7 @@ function update (progress) {
   ctx.fillStyle = '#333'
   ctx.fillRect(0, 0, cw, ch)
   ctx.drawImage(ascendImage, cw / 2 - 55, ch / 2 - 80)
+  ctx.drawImage(sponsorImage, cw / 2 - 50, ch - 170, 100, 100)
 
   if (state.track.length) {
     ctx.fillStyle = '#777'
