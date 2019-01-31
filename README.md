@@ -16,6 +16,15 @@ Go to `/play/{pin}` to play on specified pin.
 
 ## Setup
 
+### With docker
+```bash
+$ docker build -t flappy_ascend_image .
+$ docker run -d -p 8080:8080 --name flappy_ascend flappy_ascend_image
+```
+
+
+
+### Without docker
 Requires Node.js and Redis. Node also requires `webpack` to build client, and if you want a smooth development experience, use `webpack-dev-server` too (which allow inline hot reloading, meaning instant refresh in browser). These can be installed by `npm` (Node Package Manager):
 
 ```bash
