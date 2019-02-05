@@ -2,34 +2,33 @@
 
 This is a stand game to harvest our new recruits for our next years team.
 
-## Explanation
-
-This game reqiures one host server, and a lot of clients. The game works like this:
-
-There are pins, which controls who is playing where. Like Kahoot!
-
-Go to `/{pin}` to watch the main event.
-- Here you can find all players on the same pin.
-
-Go to `/play/{pin}` to play on specified pin.
-- You will not receive other players data as it causes a lot of traffic and delays.
-
 ## Setup
 
+### With docker-compose
+
+```bash
+# Will install dependencies into ./node_modules and build app
+$ docker-compose run build
+
+# Runs both redis and the app. Data is stored in the ./data folder
+$ docker-compose up app
+
+# You can choose port by adding DOCKER_PORT=4321 to the ./.env file
+# or by writing `DOCKER_PORT=4321 docker-compose up app`.
+```
+
+See the `docker-compose.yml` file for further details.
+
 ### With docker
+
 ```bash
 $ docker build -t flappy_ascend_image .
 $ docker run -d -p 8080:8080 --name flappy_ascend flappy_ascend_image
 ```
 
+### Without docker (preferred in development)
 
-
-### Without docker
-Requires Node.js and Redis. Node also requires `webpack` to build client, and if you want a smooth development experience, use `webpack-dev-server` too (which allow inline hot reloading, meaning instant refresh in browser). These can be installed by `npm` (Node Package Manager):
-
-```bash
-$ npm install -g webpack webpack-dev-server
-```
+Requires Node.js and Redis locally.
 
 Before application starts, run the redis server on port 6379 (default). Mostly, Redis can be ran with `redis-server` in the terminal, if it is installed.
 
